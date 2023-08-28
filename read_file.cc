@@ -5,8 +5,7 @@
 
 using namespace std;
 
-class ProcessParams
-{
+class ProcessParams {
 public:
 	ProcessParams(int c, int d, int p) { 
 		creation_time = c;
@@ -25,8 +24,7 @@ private:
 	int priority;
 };
 
-class File
-{
+class File {
 
 public:
 	File() {
@@ -73,8 +71,7 @@ private:
 	vector<ProcessParams *> processes;
 };
 
-int main()
-{
+int main() {
 	File f;
 	f.read_file();
 	f.print_processes_params();

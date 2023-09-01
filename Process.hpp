@@ -1,22 +1,15 @@
 #include "ProcessParams.hpp"
+#include "Context.hpp"
 #include "random"
-
-struct Context {
-    long int registers[6];
-    long int SP;
-    long int PC;
-    long int ST;
-    float progress;
-};
 
 class Process {
     public:
-        Process(int id, ProcessParams param, int b, int e) {
+        Process(int id, ProcessParams &param, int b, int e) {
             ID = id;
             params = param;
             start_time = -1;
             end_time = -1;
-            state = new State;
+            state = State();
         }
         const int get_id() {
             return ID;
@@ -43,15 +36,15 @@ class Process {
             return (end_time - start_time);
         }
         void change_state() {
-            state->current_state = (state->current_state + 1)%4;
+            state.current_state = (state.current_state + 1)%4;
         }
         const char* get_state() {
-            return state->states[state->current_state];
+            return state.states[state.current_state];
         }
         Context processing(int time_) {
             context.progress += 100 * (time_ / params.get_duration());
             if (context.progress >= 100.0) {
-                state->current_state = 3;
+                state.current_state = 3;
             }
             for (int i = 0; i < 6; ++i) {
                 context.registers[i] = random();
@@ -80,6 +73,6 @@ class Process {
         ProcessParams params;
         int start_time;
         int end_time;
-        State *state;
+        State state;
         Context context;
 };

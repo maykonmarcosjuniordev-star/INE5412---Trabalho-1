@@ -1,9 +1,5 @@
-#include
-
-class  {
-    public:
-    private:
 #include <time.h>
+
 
 class TimeTracker {
     private:

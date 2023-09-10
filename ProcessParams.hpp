@@ -1,5 +1,6 @@
 #include <iostream>
-
+#ifndef Process_Params_HPP
+#define Process_Params_HPP
 using namespace std;
 
 class ProcessParams {

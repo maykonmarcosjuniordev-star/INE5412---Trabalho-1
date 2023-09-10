@@ -15,7 +15,7 @@ class File {
 			}
 		}
 		
-		void read_file() {
+		void read_file(vector<ProcessParams *> &processes) {
 		
 			int a, b, c;
 			
@@ -31,23 +31,15 @@ class File {
 			cout << "Quantidade de processos lidos do arquivo: " << processes.size() << endl;
 		}
 
-		void print_processes_params() {
+		void print_processes_params(vector<ProcessParams *> &processes) {
 			vector<ProcessParams *>::iterator iter = processes.begin();
 
-			for(iter; iter < processes.end(); iter++) {
+			for(; iter < processes.end(); iter++) {
 				ProcessParams *p = *iter;
 				cout << *p;
 			}
 		}
 
-		~File() {
-			for(int i = 0; i < processes.size() ; i++) {
-				ProcessParams *p = processes[i];
-				delete p;
-			}
-		}
-
 	private:
-		ifstream myfile; 
-		vector<ProcessParams *> processes;
+		ifstream myfile;
 };

@@ -4,12 +4,13 @@
 
 class Process {
     public:
-        Process(int id, ProcessParams &param, int b, int e) {
+        Process(int id, ProcessParams &P_param) {
             ID = id;
-            params = param;
+            params = P_param;
             start_time = -1;
             end_time = -1;
             state = State();
+            myContext = INEcontext();
         }
         const int get_id() {
             return ID;
@@ -19,6 +20,9 @@ class Process {
         }
         const int get_start_time() {
             return start_time;
+        }
+        const int get_duration() {
+            return params.get_duration();
         }
         void set_priority(int newP) {
             params.set_priority(newP);
@@ -42,17 +46,17 @@ class Process {
             return state.states[state.current_state];
         }
         Context processing(int time_) {
-            context.progress += 100 * (time_ / params.get_duration());
-            if (context.progress >= 100.0) {
+            myContext.progress += 100 * (time_ / params.get_duration());
+            if (myContext.progress >= 100.0) {
                 state.current_state = 3;
             }
             for (int i = 0; i < 6; ++i) {
-                context.registers[i] = random();
+                myContext.registers[i] = random();
             }
-            context.PC = random();
-            context.SP = random();
-            context.ST = random();
-            return context;
+            myContext.PC = random();
+            myContext.SP = random();
+            myContext.ST = random();
+            return myContext;
         }
 
     private:
@@ -74,5 +78,5 @@ class Process {
         int start_time;
         int end_time;
         State state;
-        Context context;
+        Context myContext;
 };

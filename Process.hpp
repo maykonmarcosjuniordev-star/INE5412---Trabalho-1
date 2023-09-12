@@ -26,6 +26,10 @@ public:
     {
         return start_time;
     }
+    const int get_creation_time()
+    {
+        return params.get_creation_time();
+    }
     const int get_duration()
     {
         return params.get_duration();

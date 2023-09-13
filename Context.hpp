@@ -9,10 +9,9 @@ public:
     long int SP;
     long int PC;
     long int ST;
-    float progress;
     // altera aleatoriamente os registradores
     // e retorna se o processo já acabou
-    int processing(int time_);
+    virtual void processing();
 };
 
 class INEcontext : public Context
@@ -34,11 +33,10 @@ public:
         PC = random();
         ST = random();
         SP = random();
-        progress = static_cast<float>(random());
     }
     // altera aleatoriamente os registradores
     // e retorna se o processo já acabou
-    void processing(int time_)
+    void processing()
     {
         for (int i = 0; i < 6; ++i)
         {

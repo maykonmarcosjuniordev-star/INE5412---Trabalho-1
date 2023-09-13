@@ -16,34 +16,33 @@ private:
     {
         if (algoritm == "FCFS")
         {
-            return &FCFS_Scheduler(not_ready_queue);
+            return &FCFS_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "SJF")
         {
-            return &SJF_Scheduler(not_ready_queue);
+            return &SJF_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "PNP")
         {
-            return &PNP_Scheduler(not_ready_queue);
+            return &PNP_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "PP")
         {
-            return &PP_Scheduler(not_ready_queue);
+            return &PP_Scheduler(not_ready_queue.size());
         }
         else
         {
-            return &RR_Scheduler(not_ready_queue);
+            return &RR_Scheduler(not_ready_queue.size());
         }
     }
 
-    void not_ready_process(Process &p)
+    void get_readys()
     {
-        int i = 0;
-        while (i < not_ready_queue.size() && not_ready_queue[i].get_criation_time() < p.get_creation_time())
+        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == *(scheduler->get_time()))
         {
-            ++i
+            scheduler->ready_process(&(Process(not_ready_queue[0])));
+            not_ready_queue.erase(not_ready_queue.begin());
         }
-        not_ready_queue.insert(&p, i);
     }
     void print_processes_params(std::vector<ProcessParams *> &processes)
     {
@@ -55,48 +54,31 @@ private:
             std::cout << *p;
         }
     }
-
-public:
-    OperatingSystem(std::string algoritm)
-    {
-        scheduler = choose_sched(algoritm);
-        File myfile;
-        myfile.read_file(not_ready_queue);
-        MyCPU = INE5412();
-    }
-
-    void start()
+    void print_initial()
     {
         std::cout << "tempo ";
         for (int i = 1; i <= not_ready_queue.size(); ++i)
         {
             std::cout << " P" << i;
         }
-        std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
-        int i = 0;
-        while (1)
+    }
+    void print_state(int *sec, std::vector<std::string> *output)
+    {
+        std::cout << '\n'
+                  << std::left
+                  << std::setw(2)
+                  << sec++
+                  << "-"
+                  << std::left
+                  << std::setw(2)
+                  << sec << " ";
+        for (int i = 0; i < output->size(); ++i)
         {
-            std::cout << '\n';
-            std::cout << std::left << std::setw(2) << i;
-            std::cout << "-";
-            ++i;
-            std::cout << std::left << std::setw(2) << i;
-            std::cout << " ";
-            Process *current = scheduler->scheduling(not_ready_queue);
-            scheduler->get_state(output);
-            if (current != nullptr)
-            {
-                output[current->get_id() - 1] = "##";
-                MyCPU.set_context(current->processing())
-            }
-            for (int j = 0; j < output.size(); ++j)
-            {
-                std::cout << output[j] << ' ';
-            }
-            if ((current == nullptr) && !(not_ready_queue.size()) {
-                break;
-            }
+            std::cout << output[i] << ' ';
         }
+    }
+    void print_statistics()
+    {
         std::vector<int[2]> end_data = std::vector<int[2]>(output.size(), {0, 0});
         scheduler->get_finished(&end_data);
         std::cout << "Turnaround\n";
@@ -118,5 +100,34 @@ public:
             std::cout << end_data[j][1] << '  ';
         }
         std::cout << "media = " << media << std::endl;
+    }
+
+public:
+    OperatingSystem(std::string algoritm)
+    {
+        scheduler = choose_sched(algoritm);
+        File myfile = File();
+        myfile.read_file(not_ready_queue);
+        MyCPU = INE5412();
+    }
+
+    void start()
+    {
+        print_initial();
+        std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
+        Process *current = nullptr;
+        int sec = 0;
+        while ((not_ready_queue.size()) || (current != nullptr))
+        {
+            get_readys();
+            current = scheduler->scheduling(not_ready_queue);
+            scheduler->get_state(output);
+            if (current != nullptr)
+            {
+                MyCPU.set_context(current->processing());
+            }
+            print_state(&sec, &output);
+        }
+        print_statistics();
     }
 };

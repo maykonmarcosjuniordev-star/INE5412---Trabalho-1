@@ -18,21 +18,34 @@ public:
 			std::cout << "Erro ao abrir o arquivo!\n";
 		}
 	}
+	~File()
+	{
+		if (myfile.is_open())
+		{
+			myfile.close();
+		}
+	}
 
-	void read_file(std::vector<ProcessParams *> &processes)
+	void read_file(std::vector<ProcessParams *> &not_ready_queue)
 	{
 
-		int a, b, c;
+		int crea_t, dura_t, prior;
 
 		if (!myfile.is_open())
 		{
 			std::cout << "Arquivo não está aberto!\n";
 		}
 		int id = 0;
-		while (myfile >> a >> b >> c)
+		while (myfile >> crea_t >> dura_t >> prior)
 		{
 			id++;
-			processes.push_back(&ProcessParams(a, b, c, id));
+			ProcessParams *p = &ProcessParams(crea_t, dura_t, prior, id);
+			int i = 0;
+			while (i < not_ready_queue.size() && not_ready_queue[i]->get_creation_time() < crea_t)
+			{
+				i++;
+			}
+			not_ready_queue.insert(p, i);
 		}
 	}
 };

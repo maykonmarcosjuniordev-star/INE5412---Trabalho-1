@@ -68,8 +68,8 @@ public:
     }
     Context *processing(int time_)
     {
-        remaining_time--;
-        myContext.processing(time_);
+        remaining_time -= time_;
+        myContext.processing();
         return &myContext;
     }
 

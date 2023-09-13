@@ -5,14 +5,14 @@
 class TimeTracker
 {
 private:
-    int *current_time;
+    int current_time;
 
 public:
     TimeTracker()
     {
-        *current_time = 0;
+        current_time = 0;
     }
-    int *get_time()
+    const int get_time()
     {
         return current_time;
     }

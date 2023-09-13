@@ -20,7 +20,7 @@ protected:
     }
 
 public:
-    virtual int *get_time() 4
+    virtual int get_time()
     {
         return watch.get_time();
     }
@@ -40,7 +40,7 @@ public:
             output[current_process->get_id()] == "##";
         }
     }
-    virtual void get_finish(std::vector<int[2]> *output)
+    virtual void get_finished(std::vector<int[2]> *output)
     {
         if (ready_queue.size() || !context_switch || current_process == nullptr)
         {
@@ -54,7 +54,30 @@ public:
             output[temp->get_id() - 1][1] = temp->get_wait_time();
         }
     }
-    virtual Process *scheduling();
+    virtual Process *scheduling()
+    {
+        watch.cicle();
+        if (ready_queue.size())
+        {
+            if ((current_process == nullptr))
+            {
+                current_process = ready_queue[0];
+                context_switch++;
+            }
+            else if (current_process->get_remaining_time() == 0)
+            {
+                finished_queue.push_back(current_process);
+                current_process = ready_queue[0];
+                ready_queue.erase(ready_queue.begin());
+                context_switch++;
+            }
+            for (int i = 0; i < ready_queue.size(); ++i)
+            {
+                ready_queue[i]->spend_time();
+            }
+        }
+        return current_process;
+    }
 };
 
 class FCFS_Scheduler : public SchedulerStrategy
@@ -67,27 +90,6 @@ public:
         current_process = nullptr;
         watch = TimeTracker();
         context_switch = 0;
-    }
-    Process *scheduling()
-    {
-        watch.cicle();
-        if ((current_process == nullptr) && ready_queue.size())
-        {
-            current_process = ready_queue[0];
-            context_switch++;
-        }
-        else if (current_process->get_remaining_time() == 0)
-        {
-            finished_queue.push_back(current_process);
-            current_process = ready_queue[0];
-            ready_queue.erase(ready_queue.begin());
-            context_switch++;
-        }
-        for (int i = 0; i < ready_queue.size(); ++i)
-        {
-            ready_queue[i]->spend_time();
-        }
-        return current_process;
     }
 };
 
@@ -158,12 +160,44 @@ public:
         ready_queue.insert(p, i);
         p->change_state();
     }
+    Process *scheduling()
+    {
+        watch.cicle();
+        if (ready_queue.size())
+        {
+            if ((current_process == nullptr))
+            {
+                current_process = ready_queue[0];
+                context_switch++;
+            }
+            else if ((current_process->get_remaining_time() == 0))
+            {
+                finished_queue.push_back(current_process);
+                current_process = ready_queue[0];
+                ready_queue.erase(ready_queue.begin());
+                context_switch++;
+            }
+            else if (current_process->get_priority() < ready_queue[0]->get_priority())
+            {
+                ready_process(current_process);
+                current_process = ready_queue[0];
+                ready_queue.erase(ready_queue.begin());
+                context_switch++;
+            }
+            for (int i = 0; i < ready_queue.size(); ++i)
+            {
+                ready_queue[i]->spend_time();
+            }
+        }
+        return current_process;
+    }
 };
 
 class RR_Scheduler : public SchedulerStrategy
 {
 private:
     int quantum;
+    int remaining;
 
 public:
     RR_Scheduler(int queue_size)
@@ -174,5 +208,38 @@ public:
         watch = TimeTracker();
         context_switch = 0;
         quantum = QUANTUM;
+        remaining = quantum;
+    }
+    Process *scheduling()
+    {
+        watch.cicle();
+        if (ready_queue.size())
+        {
+            if ((current_process == nullptr))
+            {
+                current_process = ready_queue[0];
+                context_switch++;
+            }
+            else if (!remaining)
+            {
+                if (current_process->get_remaining_time() <= 0)
+                {
+                    finished_queue.push_back(current_process);
+                }
+                else
+                {
+                    ready_process(current_process);
+                }
+                current_process = ready_queue[0];
+                ready_queue.erase(ready_queue.begin());
+                context_switch++;
+            }
+            for (int i = 0; i < ready_queue.size(); ++i)
+            {
+                ready_queue[i]->spend_time();
+            }
+        }
+        remaing--;
+        return current_process;
     }
 };

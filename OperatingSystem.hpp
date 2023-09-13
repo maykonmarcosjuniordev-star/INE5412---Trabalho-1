@@ -38,7 +38,7 @@ private:
 
     void get_readys()
     {
-        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == *(scheduler->get_time()))
+        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == scheduler->get_time())
         {
             scheduler->ready_process(&(Process(not_ready_queue[0])));
             not_ready_queue.erase(not_ready_queue.begin());
@@ -115,18 +115,19 @@ public:
     {
         print_initial();
         std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
-        Process *current = nullptr;
         int sec = 0;
-        while ((not_ready_queue.size()) || (current != nullptr))
+        bool running = 1 && (not_ready_queue.size());
+        while (running)
         {
             get_readys();
-            current = scheduler->scheduling(not_ready_queue);
+            Process *current = scheduler->scheduling();
             scheduler->get_state(output);
             if (current != nullptr)
             {
                 MyCPU.set_context(current->processing());
             }
             print_state(&sec, &output);
+            running = (not_ready_queue.size()) || (current != nullptr);
         }
         print_statistics();
     }

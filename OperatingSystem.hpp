@@ -12,8 +12,7 @@ private:
     CPU MyCPU;
     SchedulerStrategy *scheduler;
     std::vector<ProcessParams *> not_ready_queue;
-    SchedulerStrategy *
-    choose_sched(std::string algoritm)
+    SchedulerStrategy *choose_sched(std::string algoritm)
     {
         if (algoritm == "FCFS")
         {
@@ -98,5 +97,26 @@ public:
                 break;
             }
         }
+        std::vector<int[2]> end_data = std::vector<int[2]>(output.size(), {0, 0});
+        scheduler->get_finished(&end_data);
+        std::cout << "Turnaround\n";
+        std::cout << "Time:   ";
+        int media = 0;
+        for (int j = 0; j < output.size(); ++j)
+        {
+            media += end_data[j][0];
+            std::cout << end_data[j][0] << '  ';
+        }
+        std::cout << "media = " << media << std::endl;
+
+        media = 0;
+        std::cout << "Wait";
+        std::cout << "Time:   ";
+        for (int j = 0; j < output.size(); ++j)
+        {
+            media += end_data[j][0];
+            std::cout << end_data[j][1] << '  ';
+        }
+        std::cout << "media = " << media << std::endl;
     }
 };

@@ -49,6 +49,20 @@ public:
             output[ready_queue[i]->get_id() - 1] = "--";
         }
     }
+    virtual void get_finish(std::vector<int[2]> *output)
+    {
+        if (ready_queue.size() || !context_switch || current_process == nullptr)
+        {
+            return nullptr;
+        }
+        Process *temp = nullptr;
+        for (int i = 0; i < output->size(); ++i)
+        {
+            temp = finished_queue[i];
+            output[temp->get_id() - 1][0] = temp->get_turnaround();
+            output[temp->get_id() - 1][1] = temp->get_wait_time();
+        }
+    }
 };
 
 class FCFS_Scheduler : public SchedulerStrategy
@@ -152,7 +166,7 @@ public:
         {
             ++i
         }
-        Process *temp = &(Process(p)))
+        Process *temp = &(Process(p));
         temp->change_state();
         ready_queue.insert(temp, i);
     }

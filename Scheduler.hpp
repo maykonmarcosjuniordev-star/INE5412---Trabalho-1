@@ -3,102 +3,134 @@
 #include "TimeTracker.hpp"
 #include "Process.hpp"
 #define QUANTUM 2
+#define CLOCK 1
 
 class SchedulerStrategy
 {
 protected:
     vector<Process *> ready_queue;
+    vector<Process *> finished_queue;
+    Process *current_process;
     TimeTracker watch;
     int context_switch;
     vector<Context *> context_queue;
-    // bool preemp;
-    virtual void ready_process()
+    virtual void ready_process(ProcessParams *p)
     {
-        ready_queue.push_back(p);
+        Process *temp = &(Process(p)))
+        ready_queue.push_back(temp);
+        temp->change_state();
     }
-    bool is_ready(vector<Process *> &not_ready_queue)
+    virtual bool get_readys(vector<ProcessParams *> &not_ready_queue)
     {
-        if (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() < *(watch.get_time()))
+        int output = 0;
+        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == *(watch.get_time()))
         {
-            ready_process(not_ready_queue[0]);
+            ready_process((not_ready_queue[0]));
             not_ready_queue.erase(not_ready_queue.begin());
-            return 1;
-        }
-        return 0;
-    }
-
-public:
-    virtual Process *scheduling(vector<Process *> not_ready_queue);
-    virtual vector<std::string> get_state(int not_ready_size)
-    {
-        int my_size = not_ready_size + ready_queue.size();
-        vector<std::string> output = vector<std::string>(size, "  ");
-        std::string temp = "";
-
-        vector<Process *>::iterator iter = ready_queue.begin();
-
-        for (; iter < ready_queue.end(); iter++)
-        {
-            output[iter.get_id() - 1] = "--";
+            output = 1;
         }
         return output;
     }
-    Process *next_process()
+    void processing(Process *p)
     {
-        return ready_queue.at(0);
+        p->processing(CLOCK);
+    }
+
+public:
+    virtual Process *scheduling(vector<ProcessParams *> not_ready_queue);
+    virtual int *get_time()
+    {
+        return watch.get_time();
+    }
+    virtual void get_state(vector<std::string> output)
+    {
+        for (int i = 0; i < ready_queue.size(); i++)
+        {
+            output[ready_queue[i]->get_id() - 1] = "--";
+        }
     }
 };
 
 class FCFS_Scheduler : public SchedulerStrategy
 {
 public:
-    FCFS_Scheduler(vector<Process *> &processes)
+    FCFS_Scheduler(vector<ProcessParams *> &processes)
     {
         ready_queue = vector<Process *>(processes.size(), nullptr);
+        finished_queue = vector<Process *>(processes.size(), nullptr);
+        current_process = nullptr;
+        watch = TimeTracker();
+        context_switch = 0;
     }
-    std::string scheduling(vector<Process *> &not_ready_queue)
+    Process *scheduling(vector<ProcessParams *> &not_ready_queue)
     {
-        std::string output = "";
-        if (ready_queue.size())
-            if (is_ready(not_ready_queue))
-            {
-            }
+        get_readys(not_ready_queue);
+        watch.cicle();
+        if ((current_process == nullptr) && ready_queue.size())
+        {
+            current_process = ready_queue[0];
+            context_switch++;
+        }
+        else if (current_process->get_remaining_time() == 0)
+        {
+            finished_queue.push_back(current_process);
+            current_process = ready_queue[0];
+            ready_queue.erase(ready_queue.begin());
+            context_switch++;
+        }
+        for (int i = 0; i < ready_queue.size(); ++i)
+        {
+            ready_queue[i]->spend_time();
+        }
+        return current_process;
     }
 };
 
 class SJF_Scheduler : public SchedulerStrategy
 {
 public:
-    SJF_Scheduler(vector<Process *> &processes)
+    SJF_Scheduler(vector<ProcessParams *> &processes)
     {
         ready_queue = vector<Process *>(processes.size(), nullptr);
+        finished_queue = vector<Process *>(processes.size(), nullptr);
+        current_process = nullptr;
+        watch = TimeTracker();
+        context_switch = 0;
     }
-    void ready_process(Process &p)
+    void ready_process(ProcessParams &p)
     {
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i].get_duration() < p.get_duration())
         {
             ++i
         }
-        ready_queue.insert(&p, i);
+        Process *temp = &(Process(p)))
+        ready_queue.insert(temp, i);
+        temp->change_state();
     }
 };
 
 class PNP_Scheduler : public SchedulerStrategy
 {
 public:
-    PNP_Scheduler(vector<Process *> &processes)
+    PNP_Scheduler(vector<ProcessParams *> &processes)
     {
         ready_queue = vector<Process *>(processes.size(), nullptr);
+        finished_queue = vector<Process *>(processes.size(), nullptr);
+        current_process = nullptr;
+        watch = TimeTracker();
+        context_switch = 0;
     }
-    void ready_process(Process &p)
+    void ready_process(ProcessParams &p)
     {
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i].get_priority() > p.get_priority())
         {
             ++i
         }
-        ready_queue.insert(&p, i);
+        Process *temp = &(Process(p)))
+        temp->change_state();
+        ready_queue.insert(temp, i);
     }
 };
 
@@ -107,16 +139,22 @@ class PP_Scheduler : public SchedulerStrategy
 public:
     PP_Scheduler(vector<Process *> &processes)
     {
-        ready_queue = vector<Process *>(processes.size(), nullptr);
+        ready_queue = vector<ProcessParams *>(processes.size(), nullptr);
+        finished_queue = vector<Process *>(processes.size(), nullptr);
+        current_process = nullptr;
+        watch = TimeTracker();
+        context_switch = 0;
     }
-    void ready_process(Process &p)
+    void ready_process(ProcessParams &p)
     {
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i].get_priority() > p.get_priority())
         {
             ++i
         }
-        ready_queue.insert(&p, i);
+        Process *temp = &(Process(p)))
+        temp->change_state();
+        ready_queue.insert(temp, i);
     }
 };
 
@@ -126,9 +164,13 @@ private:
     int quantum;
 
 public:
-    RR_Scheduler(vector<Process *> &processes)
+    RR_Scheduler(vector<ProcessParams *> &processes)
     {
         ready_queue = vector<Process *>(processes.size(), nullptr);
+        finished_queue = vector<Process *>(processes.size(), nullptr);
+        current_process = nullptr;
+        watch = TimeTracker();
+        context_switch = 0;
         quantum = QUANTUM;
     }
 };

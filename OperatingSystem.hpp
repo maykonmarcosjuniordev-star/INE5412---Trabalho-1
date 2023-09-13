@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <vector>
 #include <string.h>
 #include "CPU.hpp"
 #include "File.hpp"
@@ -8,11 +9,11 @@
 class OperatingSystem
 {
 private:
-    vector<Process *> not_ready_queue;
     CPU MyCPU;
     SchedulerStrategy *scheduler;
-
-    SchedulerStrategy *choose_sched(std::string algoritm)
+    std::vector<ProcessParams *> not_ready_queue;
+    SchedulerStrategy *
+    choose_sched(std::string algoritm)
     {
         if (algoritm == "FCFS")
         {
@@ -45,14 +46,14 @@ private:
         }
         not_ready_queue.insert(&p, i);
     }
-    void print_processes_params(vector<ProcessParams *> &processes)
+    void print_processes_params(std::vector<ProcessParams *> &processes)
     {
-        vector<ProcessParams *>::iterator iter = processes.begin();
+        std::vector<ProcessParams *>::iterator iter = processes.begin();
 
         for (; iter < processes.end(); iter++)
         {
             ProcessParams *p = *iter;
-            cout << *p;
+            std::cout << *p;
         }
     }
 
@@ -61,15 +62,8 @@ public:
     {
         scheduler = choose_sched(algoritm);
         File myfile;
-        vector<ProcessParams *> params;
-        myfile.read_file(params);
-
-        for (int i = 0; i < params.size(); i++)
-        {
-            Process p = Process((i + 1), *params[i]);
-            not_ready_process(p);
-        }
-        MyCPU = INE5412;
+        myfile.read_file(not_ready_queue);
+        MyCPU = INE5412();
     }
 
     void start()
@@ -79,23 +73,30 @@ public:
         {
             std::cout << " P" << i;
         }
-        std::cout << '\n';
+        std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
         int i = 0;
         while (1)
         {
+            std::cout << '\n';
             std::cout << std::left << std::setw(2) << i;
             std::cout << "-";
             ++i;
             std::cout << std::left << std::setw(2) << i;
             std::cout << " ";
             Process *current = scheduler->scheduling(not_ready_queue);
-            vector<std::string> vetor = scheduler->get_state(not_ready_queue.size());
-            vetor[current->get_id() - 1] = "##";
-            for (int i = 0; i < vetor.size(); ++i)
+            scheduler->get_state(output);
+            if (current != nullptr)
             {
-                std::cout << vetor[i] << ' ';
+                output[current->get_id() - 1] = "##";
+                MyCPU.set_context(current->processing())
             }
-            std::cout << '\n';
+            for (int j = 0; j < output.size(); ++j)
+            {
+                std::cout << output[j] << ' ';
+            }
+            if ((current == nullptr) && !(not_ready_queue.size()) {
+                break;
+            }
         }
     }
 };

@@ -38,14 +38,8 @@ public:
     }
     // altera aleatoriamente os registradores
     // e retorna se o processo já acabou
-    int processing(int time_)
+    void processing(int time_)
     {
-        int saida = 2;
-        progress += 100 * (time_ / params.get_duration());
-        if (progress >= 100.0)
-        {
-            saida = 3;
-        }
         for (int i = 0; i < 6; ++i)
         {
             registers[i] = random();

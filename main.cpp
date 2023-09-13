@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include "OperatingSystem.hpp"
 
-int main (int argc, char **argv) {
-    if (argc > 2) {
+int main(int argc, char **argv)
+{
+    if (argc > 2)
+    {
         printf("ERRO! Você deve digitar apenas %s ou"
                " %s <algoritmo de escalonamento>\n",
                argv[0], argv[0]);
@@ -11,14 +13,17 @@ int main (int argc, char **argv) {
     char *algoritm = "FCFS";
     char *opcoes[6] = {"FCFS", "SJF", "PNP", "PP", "RR"};
     int cond = 0;
-    if (argc == 2) {
+    if (argc == 2)
+    {
         algoritm = argv[1];
-        for (int i = 0; i < 6; ++i) {
-            cond += i*(algoritm == opcoes[i]);
+        for (int i = 0; i < 6; ++i)
+        {
+            cond += i * (algoritm == opcoes[i]);
         }
-        if (cond == -4) {
-            printf("ERRO! As opções de algoritmo são:\n" 
-                "FCFS, SJF, PNP, PP, RR\n");
+        if (cond == -4)
+        {
+            printf("ERRO! As opções de algoritmo são:\n"
+                   "FCFS, SJF, PNP, PP, RR\n");
             return 1;
         }
     }

@@ -4,36 +4,35 @@
 #include <vector>
 #include "ProcessParams.hpp"
 
-using namespace std;
-
 class File
 {
+private:
+	std::ifstream myfile;
+
 public:
 	File()
 	{
 		myfile.open("entrada.txt");
 		if (!myfile.is_open())
 		{
-			cout << "Erro ao abrir o arquivo!\n";
+			std::cout << "Erro ao abrir o arquivo!\n";
 		}
 	}
 
-	void read_file(vector<ProcessParams *> &processes)
+	void read_file(std::vector<ProcessParams *> &processes)
 	{
 
 		int a, b, c;
 
 		if (!myfile.is_open())
 		{
-			cout << "Arquivo não está aberto!" << endl;
+			std::cout << "Arquivo não está aberto!\n";
 		}
-
+		int id = 0;
 		while (myfile >> a >> b >> c)
 		{
-			processes.push_back(&ProcessParams(a, b, c));
+			id++;
+			processes.push_back(&ProcessParams(a, b, c, id));
 		}
 	}
-
-private:
-	ifstream myfile;
 };

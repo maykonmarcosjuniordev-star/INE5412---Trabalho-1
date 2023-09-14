@@ -25,7 +25,7 @@ public:
 			myfile.close();
 		}
 	}
-
+	// recebe os parâmetros dos processos a serem escalonados
 	void read_file(std::vector<ProcessParams *> &not_ready_queue)
 	{
 
@@ -41,6 +41,7 @@ public:
 			id++;
 			ProcessParams *p = &ProcessParams(crea_t, dura_t, prior, id);
 			int i = 0;
+			// ordena os processos pelo tempo de criação
 			while (i < not_ready_queue.size() && not_ready_queue[i]->get_creation_time() < crea_t)
 			{
 				i++;

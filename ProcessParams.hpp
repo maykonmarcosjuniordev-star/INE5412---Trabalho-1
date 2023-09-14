@@ -22,7 +22,13 @@ public:
 
     friend ostream &operator<<(ostream &os, const ProcessParams &p)
     {
-        os << " id = " << p.id << "Creation time = " << p.creation_time << " duration = " << p.duration << " priority = " << p.priority << endl;
+        os << " id = " << p.id
+           << "Creation time = "
+           << p.creation_time
+           << " duration = "
+           << p.duration
+           << " priority = "
+           << p.priority << endl;
         return os;
     }
 

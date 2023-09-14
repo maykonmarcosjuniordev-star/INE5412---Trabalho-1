@@ -16,6 +16,8 @@ public:
     {
         return current_time;
     }
+    // espera um ciclo de CLOCK
+    // e atualiza o current_time
     void cicle()
     {
         sleep(CLOCK);

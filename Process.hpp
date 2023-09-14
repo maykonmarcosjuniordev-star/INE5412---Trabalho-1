@@ -38,6 +38,7 @@ public:
     {
         return remaining_time;
     }
+    // tempo passado na fila de prontos
     void spend_time()
     {
         wait_time++;
@@ -46,14 +47,20 @@ public:
     {
         return wait_time;
     }
+    // se o processamento acabou
+    // seta end_time para o valor forncecido
     void set_end_time(int finish)
     {
-        end_time = finish;
+        if (remaining_time == 0)
+        {
+            end_time = finish;
+        }
     }
     const int get_end_time()
     {
         return end_time;
     }
+    // tempo que encerrou - tempo que foi criado
     const int get_turnaround()
     {
         return (end_time - params->get_creation_time());
@@ -66,10 +73,16 @@ public:
     {
         return state.states[state.current_state];
     }
-    Context *processing(int time_)
+    Context *get_context()
     {
-        remaining_time -= time_ * (1 && remaining_time);
-        myContext.processing();
+        return &myContext;
+    }
+    // atualiza o tempo processoando
+    // retorna o contexto;
+    Context *processing()
+    {
+        // nunca vai abaixo de 0
+        remaining_time -= 1 * (1 && remaining_time);
         return &myContext;
     }
 
@@ -77,6 +90,7 @@ private:
     struct State
     {
         char *states[4];
+        // para coordenar com strings
         int current_state;
         State()
         {
@@ -87,11 +101,16 @@ private:
             current_state = 0;
         }
     };
-
+    // parâmetros lidos na entrada
     ProcessParams *params;
-    int wait_time;
+    // tempo na fila de prontos
+    unsigned int wait_time;
+    // tempo encerrado
     int end_time;
-    int remaining_time;
+    // quanto falta para terminar
+    unsigned int remaining_time;
+    // estado de execução
     State state;
+    // contexto
     Context myContext;
 };

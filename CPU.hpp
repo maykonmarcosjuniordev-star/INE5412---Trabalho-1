@@ -18,5 +18,6 @@ public:
     void set_context(Context *new_context)
     {
         current_context = new_context;
+        current_context->processing();
     }
 };

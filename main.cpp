@@ -20,7 +20,7 @@ int main(int argc, char **argv)
         {
             cond += i * (algoritm == opcoes[i]);
         }
-        if (cond == -4)
+        if (!cond)
         {
             printf("ERRO! As opções de algoritmo são:\n"
                    "FCFS, SJF, PNP, PP, RR\n");

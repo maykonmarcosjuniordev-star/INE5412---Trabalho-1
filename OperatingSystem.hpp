@@ -12,6 +12,7 @@ private:
     CPU MyCPU;
     SchedulerStrategy *scheduler;
     std::vector<ProcessParams *> not_ready_queue;
+    // esconde a seleção do algoritmo de escalonamento
     SchedulerStrategy *choose_sched(std::string algoritm)
     {
         if (algoritm == "FCFS")
@@ -24,18 +25,18 @@ private:
         }
         else if (algoritm == "PNP")
         {
-            return &PNP_Scheduler(not_ready_queue.size());
+            return &Priority_Scheduler(not_ready_queue.size(), false);
         }
         else if (algoritm == "PP")
         {
-            return &PP_Scheduler(not_ready_queue.size());
+            return &Priority_Scheduler(not_ready_queue.size(), true);
         }
         else
         {
             return &RR_Scheduler(not_ready_queue.size());
         }
     }
-
+    // cria processos a partir de seus parâmetros
     void get_readys()
     {
         while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == scheduler->get_time())
@@ -54,6 +55,7 @@ private:
             std::cout << *p;
         }
     }
+    // inicio do diagrama de tempo
     void print_initial()
     {
         std::cout << "tempo ";
@@ -62,6 +64,7 @@ private:
             std::cout << " P" << i;
         }
     }
+    // printa cada segundo do diagrama de tempo
     void print_state(int *sec, std::vector<std::string> *output)
     {
         std::cout << '\n'
@@ -77,6 +80,7 @@ private:
             std::cout << output[i] << ' ';
         }
     }
+    // estatísticas finais do escalonamento
     void print_statistics()
     {
         std::vector<int[2]> end_data = std::vector<int[2]>(output.size(), {0, 0});
@@ -100,6 +104,7 @@ private:
             std::cout << end_data[j][1] << '  ';
         }
         std::cout << "media = " << media << std::endl;
+        std::cout << "N trocas de contexto = " << scheduler->get_context_switch() << std::endl;
     }
 
 public:
@@ -114,21 +119,29 @@ public:
     void start()
     {
         print_initial();
+        // a saida associada a cada processo no diagrama de tempo
         std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
+        // contador do diagrama de tempo
         int sec = 0;
         bool running = 1 && (not_ready_queue.size());
         while (running)
         {
+            // atualiza a fila de prontos
             get_readys();
+            // chama o escalonador
             Process *current = scheduler->scheduling();
+            // consegue o status desse segundo
             scheduler->get_state(output);
             if (current != nullptr)
             {
-                MyCPU.set_context(current->processing());
+                // seta a CPU
+                MyCPU.set_context(current->get_context());
             }
             print_state(&sec, &output);
+            // verifica se ainda há processos
             running = (not_ready_queue.size()) || (current != nullptr);
         }
+        // printa o resultado;
         print_statistics();
     }
 };

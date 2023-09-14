@@ -2,6 +2,12 @@
 #define CONTEXT_HPP
 
 #include "random"
+
+// classe abstrata para permitir
+// vários processadores
+// obrigatoriamente 64 bits
+// possui uma lista de registradores
+// status, stack pointer e program counter
 class Context
 {
 public:
@@ -10,10 +16,10 @@ public:
     long int PC;
     long int ST;
     // altera aleatoriamente os registradores
-    // e retorna se o processo já acabou
     virtual void processing();
 };
 
+// 6 registradores
 class INEcontext : public Context
 {
 public:
@@ -35,7 +41,6 @@ public:
         SP = random();
     }
     // altera aleatoriamente os registradores
-    // e retorna se o processo já acabou
     void processing()
     {
         for (int i = 0; i < 6; ++i)

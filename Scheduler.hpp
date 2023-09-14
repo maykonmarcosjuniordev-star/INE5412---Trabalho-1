@@ -17,16 +17,6 @@ protected:
     Process *current_process;
     // conta quantas trocas de contexto
     int context_switch;
-    // checa o processo, o insere na
-    // fila de prontos e atualiza o estado
-    virtual void ready_process(Process *p)
-    {
-        if (p)
-        {
-            ready_queue.push_back(p);
-            p->change_state();
-        }
-    }
     // checa se há processos para substituir e
     // substitui o processo atual, atualizando
     // também a fila de prontos e de contextos
@@ -64,24 +54,29 @@ protected:
     }
     // roca se processo e contexto
     // checa se é necessário e preempta um processo
-    virtual void preempt()
-    {
-        return;
-    }
+    virtual void preempt() {}
 
 public:
+    virtual ~SchedulerStrategy() {}
     // retorna current_time do relógio
-    virtual const int get_time()
+    virtual int get_time() const
     {
         return watch.get_time();
     }
     // getter do número de trocas de contexto
-    virtual const int get_context_switch()
+    virtual int get_context_switch() const
     {
         return context_switch;
     }
     // traduz o estado da fila de prontos para a saída
-    virtual void get_state(std::vector<(std::string)> output)
+    // checa o processo, o insere na
+    // fila de prontos e atualiza o estado
+    virtual void ready_process(Process &p)
+    {
+        ready_queue.push_back(&p);
+        p.change_state();
+    }
+    virtual void get_state(std::vector<std::string> &output)
     {
         for (int i = 0; i < ready_queue.size(); i++)
         {
@@ -91,11 +86,11 @@ public:
         if (current_process)
         {
             // processo executando
-            output[current_process->get_id()] == "##";
+            output[current_process->get_id()] = "##";
         }
     }
     // retorna as estatísticas finais
-    virtual void get_finished(std::vector<int[2]> *output)
+    virtual void get_finished(std::vector<std::array<int, 2>> *output)
     {
         Process *temp = nullptr;
         for (int i = 0; i < output->size(); ++i)
@@ -161,27 +156,24 @@ public:
         context_switch = 0;
     }
     // organiza pela duração
-    void ready_process(Process *p)
+    void ready_process(Process &p) override
     {
         int i = 0;
-        while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
+        while (i < ready_queue.size() && ready_queue[i]->get_duration() < p.get_duration())
         {
             ++i;
         }
-        ready_queue.insert(p, i);
-        p->change_state();
+        ready_queue.insert(ready_queue.begin() + i, &p);
+        p.change_state();
     }
     // preempta se houver processos mais curtos
-    void preempt()
+    void preempt() override
     {
         if (current_process->get_duration() > ready_queue[0]->get_duration())
         {
-            ready_process(current_process);
-            current_process = ready_queue[0];
-            ready_queue.erase(ready_queue.begin());
-            context_switch++;
-            context_queue.pop_back();
-            context_queue.push_back(current_process->processing());
+            current_process->change_state(-1);
+            ready_process(*current_process);
+            alternate_process();
         }
     }
 };
@@ -198,30 +190,24 @@ public:
         context_switch = 0;
     }
     // organiza pela prioridade
-    void ready_process(Process *p)
+    void ready_process(Process &p) override
     {
-        if (p)
+        int i = 0;
+        while (i < ready_queue.size() && ready_queue[i]->get_priority() > p.get_priority())
         {
-            int i = 0;
-            while (i < ready_queue.size() && ready_queue[i]->get_priority() > p->get_priority())
-            {
-                ++i;
-            }
-            ready_queue.insert(p, i);
-            p->change_state();
+            ++i;
         }
+        ready_queue.insert(ready_queue.begin() + i, &p);
+        p.change_state();
     }
     // preempta se houver processo prioritários
-    void preempt()
+    void preempt() override
     {
         if (current_process->get_priority() < ready_queue[0]->get_priority())
         {
-            ready_process(current_process);
-            current_process = ready_queue[0];
-            ready_queue.erase(ready_queue.begin());
-            context_switch++;
-            context_queue.pop_back();
-            context_queue.push_back(current_process->processing());
+            current_process->change_state(-1);
+            ready_process(*current_process);
+            alternate_process();
         }
     }
 };
@@ -244,7 +230,7 @@ public:
         quantum = QUANTUM;
         remaining = quantum;
     }
-    Process *scheduling()
+    Process *scheduling() override
     {
         if (remaining == 0)
         {
@@ -253,7 +239,7 @@ public:
             // se não acabou volta para a fila de prontos
             if (current_process && current_process->get_remaining_time() > 0)
             {
-                ready_process(current_process);
+                ready_process(*current_process);
             }
             // alternância sempre ocorre, mesmo que seja pelo mesmo processo
             alternate_process();

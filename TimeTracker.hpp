@@ -1,4 +1,3 @@
-#include <time.h>
 #include <unistd.h>
 #define CLOCK 1
 
@@ -12,7 +11,7 @@ public:
     {
         current_time = 0;
     }
-    const int get_time()
+    int get_time() const
     {
         return current_time;
     }

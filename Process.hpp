@@ -1,6 +1,7 @@
 #include "ProcessParams.hpp"
 #include "Context.hpp"
 #include "random"
+#include <string.h>
 
 class Process
 {
@@ -14,15 +15,15 @@ public:
         state = State();
         myContext = INEcontext();
     }
-    const int get_id()
+    int get_id() const
     {
         return params->get_id();
     }
-    const int get_creation_time()
+    int get_creation_time() const
     {
         return params->get_creation_time();
     }
-    const int get_duration()
+    int get_duration() const
     {
         return params->get_duration();
     }
@@ -30,11 +31,11 @@ public:
     {
         params->set_priority(newP);
     }
-    const int get_priority()
+    int get_priority() const
     {
         return params->get_priority();
     }
-    const int get_remaining_time()
+    int get_remaining_time() const
     {
         return remaining_time;
     }
@@ -43,7 +44,7 @@ public:
     {
         wait_time++;
     }
-    const int get_wait_time()
+    int get_wait_time() const
     {
         return wait_time;
     }
@@ -56,12 +57,12 @@ public:
             end_time = finish;
         }
     }
-    const int get_end_time()
+    int get_end_time() const
     {
         return end_time;
     }
     // tempo que encerrou - tempo que foi criado
-    const int get_turnaround()
+    int get_turnaround() const
     {
         return (end_time - params->get_creation_time());
     }
@@ -69,7 +70,11 @@ public:
     {
         state.current_state++;
     }
-    const char *get_state()
+    void change_state(int steps)
+    {
+        state.current_state += steps;
+    }
+    std::string get_state() const
     {
         return state.states[state.current_state];
     }
@@ -89,7 +94,7 @@ public:
 private:
     struct State
     {
-        char *states[4];
+        std::string states[4];
         // para coordenar com strings
         int current_state;
         State()

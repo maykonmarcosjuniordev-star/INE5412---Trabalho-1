@@ -31,22 +31,22 @@ public:
         return os;
     }
 
-    const int get_creation_time()
+    int get_creation_time() const
     {
         return creation_time;
     }
 
-    const int get_id()
+    int get_id() const
     {
         return id;
     }
 
-    const int get_duration()
+    int get_duration() const
     {
         return duration;
     }
 
-    const int get_priority()
+    int get_priority() const
     {
         return priority;
     }
@@ -56,3 +56,4 @@ public:
         priority = NewP;
     }
 };
+#endif // ProcessParams_HPP

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "OperatingSystem.hpp"
+#include <cstring>
+#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -10,15 +12,15 @@ int main(int argc, char **argv)
                argv[0], argv[0]);
         return 1;
     }
-    char *algoritm = "FCFS";
-    char *opcoes[6] = {"FCFS", "SJF", "PNP", "PP", "RR"};
+    std::string algoritm = "FCFS";
+    std::string opcoes[5] = {"FCFS", "SJF", "PNP", "PP", "RR"};
     int cond = 0;
     if (argc == 2)
     {
         algoritm = argv[1];
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < 5; ++i)
         {
-            cond += i * (algoritm == opcoes[i]);
+            cond |= (algoritm == opcoes[i]);
         }
         if (!cond)
         {
@@ -30,4 +32,4 @@ int main(int argc, char **argv)
     OperatingSystem OS = OperatingSystem(algoritm);
     OS.start();
     return 0;
-};
+}

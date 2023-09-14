@@ -2,6 +2,7 @@
 #include "Context.hpp"
 #include "random"
 #include <string.h>
+#define N_STATES 4
 
 class Process
 {
@@ -13,7 +14,7 @@ public:
         end_time = -1;
         remaining_time = params->get_duration();
         state = State();
-        myContext = INEcontext();
+        *myContext = INEcontext();
     }
     int get_id() const
     {
@@ -68,11 +69,11 @@ public:
     }
     void change_state()
     {
-        state.current_state++;
+        state.current_state = (state.current_state + 1) % (N_STATES);
     }
     void change_state(int steps)
     {
-        state.current_state += steps;
+        state.current_state = (state.current_state + steps) % (N_STATES);
     }
     std::string get_state() const
     {
@@ -80,21 +81,21 @@ public:
     }
     Context *get_context()
     {
-        return &myContext;
+        return myContext;
     }
-    // atualiza o tempo processoando
+    // atualiza o tempo processando
     // retorna o contexto;
     Context *processing()
     {
         // nunca vai abaixo de 0
         remaining_time -= 1 * (1 && remaining_time);
-        return &myContext;
+        return myContext;
     }
 
 private:
     struct State
     {
-        std::string states[4];
+        std::string states[N_STATES];
         // para coordenar com strings
         int current_state;
         State()
@@ -117,5 +118,5 @@ private:
     // estado de execução
     State state;
     // contexto
-    Context myContext;
+    Context *myContext;
 };

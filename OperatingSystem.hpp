@@ -71,7 +71,7 @@ private:
         }
     }
     // printa cada segundo do diagrama de tempo
-    void print_state(int *sec, std::vector<std::string> *output)
+    void print_state(int *sec, std::vector<std::string> output)
     {
         std::cout << '\n'
                   << std::left
@@ -81,7 +81,7 @@ private:
                   << std::left
                   << std::setw(2)
                   << sec << " ";
-        for (int i = 0; i < output->size(); ++i)
+        for (int i = 0; i < output.size(); ++i)
         {
             std::cout << output[i] << ' ';
         }
@@ -91,7 +91,7 @@ private:
     {
         std::vector<std::array<int, 2>> end_data(Nprocess, {0, 0});
 
-        scheduler.get_finished(&end_data);
+        scheduler.get_finished(end_data);
         std::cout << "Turnaround\n";
         std::cout << "Time:   ";
         int media = 0;
@@ -100,6 +100,7 @@ private:
             media += end_data[j][0];
             std::cout << end_data[j][0] << "  ";
         }
+        media /= Nprocess;
         std::cout << "media = " << media << std::endl;
 
         media = 0;
@@ -110,6 +111,7 @@ private:
             media += end_data[j][1];
             std::cout << end_data[j][1] << "  ";
         }
+        media /= Nprocess;
         std::cout << "media = " << media << std::endl;
         std::cout << "N trocas de contexto = " << scheduler.get_context_switch() << std::endl;
     }
@@ -145,7 +147,7 @@ public:
                 // seta a CPU
                 MyCPU.set_context(current->get_context());
             }
-            print_state(&sec, &output);
+            print_state(&sec, output);
             // verifica se ainda há processos
             running = (not_ready_queue.size()) || (current != nullptr);
         }

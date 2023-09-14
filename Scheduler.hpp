@@ -90,10 +90,10 @@ public:
         }
     }
     // retorna as estatísticas finais
-    virtual void get_finished(std::vector<std::array<int, 2>> *output)
+    virtual void get_finished(std::vector<std::array<int, 2>> output)
     {
         Process *temp = nullptr;
-        for (int i = 0; i < output->size(); ++i)
+        for (int i = 0; i < output.size(); ++i)
         {
             temp = finished_queue[i];
             output[temp->get_id() - 1][0] = temp->get_turnaround();
@@ -245,7 +245,7 @@ public:
             alternate_process();
         }
         // verifica se precia encerrar um processo e o faz
-        else if ((current_process == nullptr))
+        else if (current_process == nullptr)
         {
             alternate_process();
         }

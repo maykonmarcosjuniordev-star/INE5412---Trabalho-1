@@ -37,7 +37,7 @@ protected:
             // substitui o processo pelo próximo
             current_process = ready_queue[0];
             // estado é executando
-            current_process->chage_state();
+            current_process->change_state();
             // novo contexto sai da fila de prontos
             ready_queue.erase(ready_queue.begin());
             // houve troca de contexto
@@ -55,7 +55,7 @@ protected:
         if (output)
         {
             finished_queue[current_process->get_id() - 1] = current_process;
-            // ezstado é encerrado
+            // estado é encerrado
             current_process->change_state();
             current_process->set_end_time(get_time());
             context_queue.pop_back();
@@ -81,7 +81,7 @@ public:
         return context_switch;
     }
     // traduz o estado da fila de prontos para a saída
-    virtual void get_state(vector<std::string> output)
+    virtual void get_state(std::vector<(std::string)> output)
     {
         for (int i = 0; i < ready_queue.size(); i++)
         {
@@ -97,10 +97,6 @@ public:
     // retorna as estatísticas finais
     virtual void get_finished(std::vector<int[2]> *output)
     {
-        if (ready_queue.size() || !context_switch || current_process == nullptr)
-        {
-            return nullptr;
-        }
         Process *temp = nullptr;
         for (int i = 0; i < output->size(); ++i)
         {
@@ -137,7 +133,7 @@ class FCFS_Scheduler : public SchedulerStrategy
 public:
     FCFS_Scheduler(int queue_size)
     {
-        finished_queue = vector<Process *>(queue_size, nullptr);
+        finished_queue = std::vector<Process *>(queue_size, nullptr);
         current_process = nullptr;
         watch = TimeTracker();
         preemp = false;
@@ -150,7 +146,7 @@ class SJF_Scheduler : public SchedulerStrategy
 public:
     SJF_Scheduler(int queue_size)
     {
-        finished_queue = vector<Process *>(queue_size, nullptr);
+        finished_queue = std::vector<Process *>(queue_size, nullptr);
         current_process = nullptr;
         watch = TimeTracker();
         preemp = false;
@@ -158,7 +154,7 @@ public:
     }
     SJF_Scheduler(int queue_size, bool is_preemp)
     {
-        finished_queue = vector<Process *>(queue_size, nullptr);
+        finished_queue = std::vector<Process *>(queue_size, nullptr);
         current_process = nullptr;
         watch = TimeTracker();
         preemp = is_preemp;
@@ -170,7 +166,7 @@ public:
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
         {
-            ++i
+            ++i;
         }
         ready_queue.insert(p, i);
         p->change_state();
@@ -195,7 +191,7 @@ class Priority_Scheduler : public SchedulerStrategy
 public:
     Priority_Scheduler(int queue_size, bool is_preemp)
     {
-        finished_queue = vector<Process *>(queue_size, nullptr);
+        finished_queue = std::vector<Process *>(queue_size, nullptr);
         current_process = nullptr;
         preemp = is_preemp;
         watch = TimeTracker();
@@ -209,7 +205,7 @@ public:
             int i = 0;
             while (i < ready_queue.size() && ready_queue[i]->get_priority() > p->get_priority())
             {
-                ++i
+                ++i;
             }
             ready_queue.insert(p, i);
             p->change_state();
@@ -239,7 +235,7 @@ private:
 public:
     RR_Scheduler(int queue_size)
     {
-        finished_queue = vector<Process *>(queue_size, nullptr);
+        finished_queue = std::vector<Process *>(queue_size, nullptr);
         current_process = nullptr;
         watch = TimeTracker();
         context_switch = 0;

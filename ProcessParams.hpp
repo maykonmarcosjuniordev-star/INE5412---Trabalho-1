@@ -1,7 +1,6 @@
 #include <iostream>
 #ifndef ProcessParams_HPP
 #define ProcessParams_HPP
-using namespace std;
 
 class ProcessParams
 {
@@ -20,7 +19,7 @@ public:
         id = newID;
     }
 
-    friend ostream &operator<<(ostream &os, const ProcessParams &p)
+    friend std::ostream &operator<<(std::ostream &os, const ProcessParams &p)
     {
         os << " id = " << p.id
            << "Creation time = "
@@ -28,7 +27,7 @@ public:
            << " duration = "
            << p.duration
            << " priority = "
-           << p.priority << endl;
+           << p.priority << '\n';
         return os;
     }
 

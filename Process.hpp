@@ -7,7 +7,7 @@ class Process
 public:
     Process(ProcessParams *P_param)
     {
-        *params = P_param;
+        params = P_param;
         wait_time = 0;
         end_time = -1;
         remaining_time = params->get_duration();

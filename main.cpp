@@ -30,4 +30,4 @@ int main(int argc, char **argv)
     OperatingSystem OS = OperatingSystem(algoritm);
     OS.start();
     return 0;
-}
+};

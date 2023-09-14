@@ -10,41 +10,45 @@ class OperatingSystem
 {
 private:
     CPU MyCPU;
-    SchedulerStrategy *scheduler;
+    SchedulerStrategy scheduler;
     std::vector<ProcessParams *> not_ready_queue;
     // esconde a seleção do algoritmo de escalonamento
-    SchedulerStrategy *choose_sched(std::string algoritm)
+    SchedulerStrategy choose_sched(std::string algoritm)
     {
+        SchedulerStrategy output;
         if (algoritm == "FCFS")
         {
-            return &FCFS_Scheduler(not_ready_queue.size());
+            output = FCFS_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "SJF")
         {
-            return &SJF_Scheduler(not_ready_queue.size());
+            output = SJF_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "PNP")
         {
-            return &Priority_Scheduler(not_ready_queue.size(), false);
+            output = Priority_Scheduler(not_ready_queue.size(), false);
         }
         else if (algoritm == "PP")
         {
-            return &Priority_Scheduler(not_ready_queue.size(), true);
+            output = Priority_Scheduler(not_ready_queue.size(), true);
         }
         else
         {
-            return &RR_Scheduler(not_ready_queue.size());
+            output = RR_Scheduler(not_ready_queue.size());
         }
+        return output;
     }
     // cria processos a partir de seus parâmetros
     void get_readys()
     {
-        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == scheduler->get_time())
+        while (not_ready_queue.size() && (not_ready_queue[0])->get_creation_time() == scheduler.get_time())
         {
-            scheduler->ready_process(&(Process(not_ready_queue[0])));
+            Process p = (Process(not_ready_queue[0]));
+            scheduler.ready_process(&p);
             not_ready_queue.erase(not_ready_queue.begin());
         }
     }
+    /*
     void print_processes_params(std::vector<ProcessParams *> &processes)
     {
         std::vector<ProcessParams *>::iterator iter = processes.begin();
@@ -55,6 +59,7 @@ private:
             std::cout << *p;
         }
     }
+    */
     // inicio do diagrama de tempo
     void print_initial()
     {
@@ -81,30 +86,30 @@ private:
         }
     }
     // estatísticas finais do escalonamento
-    void print_statistics()
+    void print_statistics(int Nprocess)
     {
-        std::vector<int[2]> end_data = std::vector<int[2]>(output.size(), {0, 0});
-        scheduler->get_finished(&end_data);
+        std::vector<int[2]> end_data = std::vector<int[2]>(Nprocess, {0, 0});
+        scheduler.get_finished(&end_data);
         std::cout << "Turnaround\n";
         std::cout << "Time:   ";
         int media = 0;
-        for (int j = 0; j < output.size(); ++j)
+        for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
-            std::cout << end_data[j][0] << '  ';
+            std::cout << end_data[j][0] << "  ";
         }
         std::cout << "media = " << media << std::endl;
 
         media = 0;
         std::cout << "Wait";
         std::cout << "Time:   ";
-        for (int j = 0; j < output.size(); ++j)
+        for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
-            std::cout << end_data[j][1] << '  ';
+            std::cout << end_data[j][1] << "  ";
         }
         std::cout << "media = " << media << std::endl;
-        std::cout << "N trocas de contexto = " << scheduler->get_context_switch() << std::endl;
+        std::cout << "N trocas de contexto = " << scheduler.get_context_switch() << std::endl;
     }
 
 public:
@@ -120,7 +125,7 @@ public:
     {
         print_initial();
         // a saida associada a cada processo no diagrama de tempo
-        std::vector<std::string> output = vector<std::string>(not_ready_queue.size(), "  ");
+        std::vector<std::string> output = std::vector<std::string>(not_ready_queue.size(), "  ");
         // contador do diagrama de tempo
         int sec = 0;
         bool running = 1 && (not_ready_queue.size());
@@ -129,9 +134,9 @@ public:
             // atualiza a fila de prontos
             get_readys();
             // chama o escalonador
-            Process *current = scheduler->scheduling();
+            Process *current = scheduler.scheduling();
             // consegue o status desse segundo
-            scheduler->get_state(output);
+            scheduler.get_state(output);
             if (current != nullptr)
             {
                 // seta a CPU
@@ -142,6 +147,6 @@ public:
             running = (not_ready_queue.size()) || (current != nullptr);
         }
         // printa o resultado;
-        print_statistics();
+        print_statistics(output.size());
     }
 };

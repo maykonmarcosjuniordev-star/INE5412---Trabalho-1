@@ -14,7 +14,6 @@ public:
 class INE5412 : public CPU
 {
 public:
-    INE5412();
     void set_context(Context *new_context)
     {
         current_context = new_context;

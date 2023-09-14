@@ -5,15 +5,14 @@
 
 class Context
 {
-
 public:
-    virtual void processing();
-    Context() {}
+    virtual void processing() = 0; // Pure virtual function
     virtual ~Context() {}
-    virtual long int *get_registers();
-    virtual long int get_SP();
-    virtual long int get_PC();
-    virtual long int get_ST();
+
+    virtual long int *get_registers() = 0;
+    virtual long int get_SP() = 0;
+    virtual long int get_PC() = 0;
+    virtual long int get_ST() = 0;
 };
 
 class INEcontext : public Context
@@ -45,6 +44,26 @@ public:
         PC = rand();
         SP = rand();
         ST = rand();
+    }
+
+    long int *get_registers() override
+    {
+        return registers;
+    }
+
+    long int get_SP() override
+    {
+        return SP;
+    }
+
+    long int get_PC() override
+    {
+        return PC;
+    }
+
+    long int get_ST() override
+    {
+        return ST;
     }
 };
 

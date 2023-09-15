@@ -80,11 +80,8 @@ private:
         }
     }
     // estatísticas finais do escalonamento
-    void print_statistics(int Nprocess)
+    void print_statistics(int Nprocess, int Ncontext_switch, std::vector<std::array<int, 2>> &end_data)
     {
-        std::vector<std::array<int, 2>> end_data(Nprocess, {0, 0});
-
-        scheduler.get_finished(end_data);
         std::cout << "\nTurnaround\n";
         std::cout << "Time: ";
         float media = 0;
@@ -110,7 +107,7 @@ private:
         }
         media /= static_cast<float>(Nprocess);
         std::cout << "| media = " << media << std::endl;
-        std::cout << "N de trocas de contexto = " << scheduler.get_context_switch() << std::endl;
+        std::cout << "N de trocas de contexto = " << Ncontext_switch << std::endl;
     }
 
 public:
@@ -165,7 +162,9 @@ public:
             // quando não houver processos para executar,
             // current process será nullptr.
         }
+        std::vector<std::array<int, 2>> end_data(Nprocessos, {0, 0});
+        scheduler.get_finished(end_data);
         // printa o resultado;
-        print_statistics(Nprocessos);
+        print_statistics(Nprocessos, scheduler.get_context_switch(), end_data);
     }
 };

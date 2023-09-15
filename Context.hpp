@@ -6,7 +6,7 @@
 class Context
 {
 public:
-    virtual void processing() = 0; // Pure virtual function
+    virtual void processing() = 0;
     virtual ~Context() {}
 
     virtual long int *get_registers() = 0;

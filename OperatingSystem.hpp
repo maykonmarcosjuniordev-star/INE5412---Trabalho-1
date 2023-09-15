@@ -13,6 +13,7 @@ private:
     CPU *MyCPU;
     SchedulerStrategy scheduler;
     std::vector<ProcessParams> not_ready_queue;
+    std::vector<Process *> process_bucket;
     // esconde a seleção do algoritmo de escalonamento
     SchedulerStrategy choose_sched(std::string algoritm)
     {
@@ -74,7 +75,7 @@ private:
                   << "-"
                   << std::right
                   << std::setw(2)
-                  << *sec << " ";
+                  << *sec << "  ";
         for (int i = 0; i < output.size(); ++i)
         {
             std::cout << output[i] << ' ';
@@ -86,28 +87,32 @@ private:
         std::vector<std::array<int, 2>> end_data(Nprocess, {0, 0});
 
         scheduler.get_finished(end_data);
-        std::cout << "Turnaround\n";
-        std::cout << "Time:   ";
+        std::cout << "\nTurnaround\n";
+        std::cout << "Time: ";
         int media = 0;
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
-            std::cout << end_data[j][0] << "  ";
+            std::cout << std::right
+                      << std::setw(2)
+                      << end_data[j][0] << " ";
         }
         media /= Nprocess;
-        std::cout << "media = " << media << std::endl;
+        std::cout << "| media = " << media << std::endl;
 
         media = 0;
-        std::cout << "Wait";
-        std::cout << "Time:   ";
+        std::cout << "Wait\n";
+        std::cout << "Time: ";
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][1];
-            std::cout << end_data[j][1] << "  ";
+            std::cout << std::right
+                      << std::setw(2)
+                      << end_data[j][1] << " ";
         }
         media /= Nprocess;
-        std::cout << "media = " << media << std::endl;
-        std::cout << "N trocas de contexto = " << scheduler.get_context_switch() << std::endl;
+        std::cout << "| media = " << media << std::endl;
+        std::cout << "N de trocas de contexto = " << scheduler.get_context_switch() << std::endl;
     }
 
 public:
@@ -121,6 +126,10 @@ public:
     ~OperatingSystem()
     {
         delete MyCPU;
+        for (int i = 0; i < process_bucket.size(); ++i)
+        {
+            delete process_bucket[i];
+        }
     }
 
     void start()
@@ -138,9 +147,9 @@ public:
             // get_readys();
             while ((prontos < not_ready_queue.size()) && (not_ready_queue[prontos]).get_creation_time() == scheduler.get_time())
             {
-                Process p = Process(&(not_ready_queue[prontos]));
-                std::cout << "\nprontos = " << prontos << std::endl;
-                scheduler.ready_process(p);
+                Process *p = new Process(&(not_ready_queue[prontos]));
+                process_bucket.push_back(p);
+                scheduler.ready_process(process_bucket.back());
                 prontos++;
             }
             // chama o escalonador
@@ -155,7 +164,7 @@ public:
             }
             print_state(&sec, output);
             // verifica se ainda há processos
-            running = (current != nullptr) || (prontos == 0) && (sec < 15);
+            running = (current != nullptr) || (prontos == 0);
         }
         // printa o resultado;
         print_statistics(Nprocessos);

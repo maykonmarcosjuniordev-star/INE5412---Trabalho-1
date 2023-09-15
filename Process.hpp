@@ -14,7 +14,11 @@ public:
         end_time = -1;
         remaining_time = params->get_duration();
         state = State();
-        *myContext = INEcontext();
+        myContext = new INEcontext();
+    }
+    ~Process()
+    {
+        delete myContext;
     }
     int get_id() const
     {

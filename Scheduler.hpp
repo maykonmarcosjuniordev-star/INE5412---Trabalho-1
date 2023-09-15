@@ -44,7 +44,12 @@ protected:
         bool output = current_process && (current_process->get_remaining_time() == 0);
         if (output)
         {
-            finished_queue[current_process->get_id() - 1] = current_process;
+            int idx = current_process->get_id() - 1;
+            if (idx < 0 || idx >= finished_queue.size())
+            {
+                return false;
+            }
+            finished_queue[idx] = current_process;
             // estado é encerrado
             current_process->change_state();
             current_process->set_end_time(get_time());
@@ -75,35 +80,45 @@ public:
     // traduz o estado da fila de prontos para a saída
     // checa o processo, o insere na
     // fila de prontos e atualiza o estado
-    virtual void ready_process(Process &p)
+    virtual void ready_process(Process *p)
     {
-        ready_queue.push_back(&p);
-        p.change_state();
+        ready_queue.push_back(p);
+        p->change_state();
     }
     virtual void get_state(std::vector<std::string> &output)
     {
-        std::cout << "\nready_queue.size() == " << ready_queue.size() << std::endl;
         for (int i = 0; i < ready_queue.size(); i++)
         {
             // processos aguardando a execução
-            std::cout << "\nready_queue[0]->get_id() == " << ready_queue[0]->get_id() << std::endl;
-            output[ready_queue[i]->get_id() - 1] = "--";
+            int idx = ready_queue[i]->get_id() - 1;
+            if (idx >= 0 && idx < output.size())
+            {
+                output[idx] = "--";
+            }
         }
         if (current_process != nullptr)
         {
             // processo executando
-            output[current_process->get_id() - 1] = "##";
+            int idx = current_process->get_id() - 1;
+            if (idx >= 0 && idx < output.size())
+            {
+                output[idx] = "##";
+            }
         }
     }
     // retorna as estatísticas finais
-    virtual void get_finished(std::vector<std::array<int, 2>> output)
+    virtual void get_finished(std::vector<std::array<int, 2>> &output)
     {
         Process *temp = nullptr;
         for (int i = 0; i < output.size(); ++i)
         {
             temp = finished_queue[i];
-            output[temp->get_id() - 1][0] = temp->get_turnaround();
-            output[temp->get_id() - 1][1] = temp->get_wait_time();
+            int idx = temp->get_id() - 1;
+            if (idx >= 0 && idx < output.size())
+            {
+                output[idx][0] = temp->get_turnaround();
+                output[idx][1] = temp->get_wait_time();
+            }
         }
     }
     // escalonador default, sem preempção
@@ -166,15 +181,16 @@ public:
         context_switch = 0;
     }
     // organiza pela duração
-    void ready_process(Process &p) override
+    void ready_process(Process *p) override
     {
+        std::cout << "cheguei" << std::endl;
         int i = 0;
-        while (i < ready_queue.size() && ready_queue[i]->get_duration() < p.get_duration())
+        while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
         {
             ++i;
         }
-        ready_queue.insert(ready_queue.begin() + i, &p);
-        p.change_state();
+        ready_queue.insert(ready_queue.begin() + i, p);
+        p->change_state();
     }
     // preempta se houver processos mais curtos
     void preempt() override
@@ -182,7 +198,7 @@ public:
         if (current_process->get_duration() > ready_queue[0]->get_duration())
         {
             current_process->change_state(-1);
-            ready_process(*current_process);
+            ready_process(current_process);
             alternate_process();
         }
     }
@@ -200,15 +216,15 @@ public:
         context_switch = 0;
     }
     // organiza pela prioridade
-    void ready_process(Process &p) override
+    void ready_process(Process *p) override
     {
         int i = 0;
-        while (i < ready_queue.size() && ready_queue[i]->get_priority() > p.get_priority())
+        while (i < ready_queue.size() && ready_queue[i]->get_priority() > p->get_priority())
         {
             ++i;
         }
-        ready_queue.insert(ready_queue.begin() + i, &p);
-        p.change_state();
+        ready_queue.insert(ready_queue.begin() + i, p);
+        p->change_state();
     }
     // preempta se houver processo prioritários
     void preempt() override
@@ -216,7 +232,7 @@ public:
         if (current_process->get_priority() < ready_queue[0]->get_priority())
         {
             current_process->change_state(-1);
-            ready_process(*current_process);
+            ready_process(current_process);
             alternate_process();
         }
     }
@@ -253,7 +269,7 @@ public:
             // se não acabou volta para a fila de prontos
             if (current_process && current_process->get_remaining_time() > 0)
             {
-                ready_process(*current_process);
+                ready_process(current_process);
             }
             // alternância sempre ocorre, mesmo que seja pelo mesmo processo
             alternate_process();

@@ -41,7 +41,7 @@ protected:
     // só na de encerrados e de contexto
     virtual bool end_process()
     {
-        bool output = current_process && (current_process->get_remaining_time() == 0);
+        bool output = (current_process != nullptr) && (current_process->get_remaining_time() == 0);
         if (output)
         {
             int idx = current_process->get_id() - 1;
@@ -82,8 +82,11 @@ public:
     // fila de prontos e atualiza o estado
     virtual void ready_process(Process *p)
     {
-        ready_queue.push_back(p);
-        p->change_state();
+        if (p != nullptr)
+        {
+            ready_queue.push_back(p);
+            p->change_state();
+        }
     }
     virtual void get_state(std::vector<std::string> &output)
     {
@@ -137,7 +140,7 @@ public:
         {
             preempt();
         }
-        //   todos na fila de prontos passam tempo sem serem processados
+        // todos na fila de prontos passam tempo sem serem processados
         for (int i = 0; i < ready_queue.size(); ++i)
         {
             ready_queue[i]->spend_time();
@@ -183,6 +186,10 @@ public:
     // organiza pela duração
     void ready_process(Process *p) override
     {
+        if (p == nullptr)
+        {
+            return;
+        }
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
         {
@@ -217,6 +224,10 @@ public:
     // organiza pela prioridade
     void ready_process(Process *p) override
     {
+        if (p == nullptr)
+        {
+            return;
+        }
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_priority() > p->get_priority())
         {
@@ -261,24 +272,32 @@ public:
         {
             current_process->processing();
         }
+        // evita alternância dupla
+        bool must_altern = true;
+        // verifica se precia encerrar um processo e o faz
+        // caso seja a primeira iteração também
+        if (end_process() || (current_process == nullptr))
+        {
+            must_altern = false;
+            alternate_process();
+        }
         if (remaining == 0)
         {
             // retorna ao valor;
             remaining = quantum;
-            // se não acabou volta para a fila de prontos
-            if (current_process && current_process->get_remaining_time() > 0)
+            if (must_altern)
             {
+                // se não acabou volta para a fila de prontos
                 ready_process(current_process);
+                // alternância ocorre mesmo que seja pelo mesmo processo
+                alternate_process();
             }
-            // alternância sempre ocorre, mesmo que seja pelo mesmo processo
-            alternate_process();
         }
-        // verifica se precia encerrar um processo e o faz
-        else if (current_process == nullptr)
+        // todos na fila de prontos passam tempo sem serem processados
+        for (int i = 0; i < ready_queue.size(); ++i)
         {
-            alternate_process();
+            ready_queue[i]->spend_time();
         }
-        end_process();
         watch.cicle();
         // decrementa o tempo restante
         remaining--;

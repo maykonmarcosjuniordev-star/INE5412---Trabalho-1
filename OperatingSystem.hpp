@@ -56,7 +56,7 @@ private:
         std::cout << "tempo ";
         for (int i = 1; i <= not_ready_queue.size(); ++i)
         {
-            std::cout << " P" << i;
+            std::cout << "  P" << i;
         }
     }
     // printa cada segundo do diagrama de tempo
@@ -67,40 +67,42 @@ private:
                   << std::setw(2)
                   << (sec - 1)
                   << "-"
-                  << std::right
+                  << std::left
                   << std::setw(2)
-                  << sec << "  ";
+                  << sec << "   ";
         for (int i = 0; i < output.size(); ++i)
         {
-            std::cout << output[i] << ' ';
+            std::cout << output[i] << "  ";
             output[i] = "  ";
         }
+        static int debug = 0;
+        // std::cout << "\ndebug = " << debug++ << std::endl;
     }
     // estatísticas finais do escalonamento
     void print_statistics(int Nprocess, int Ncontext_switch, std::vector<std::array<int, 2>> &end_data)
     {
         std::cout << "\nTurnaround\n";
-        std::cout << "Time: ";
+        std::cout << "Time:   ";
         float media = 0;
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
             std::cout << std::right
                       << std::setw(2)
-                      << end_data[j][0] << " ";
+                      << end_data[j][0] << "  ";
         }
         media /= static_cast<float>(Nprocess);
         std::cout << "| media = " << media << std::endl;
 
         media = 0;
         std::cout << "Wait\n";
-        std::cout << "Time: ";
+        std::cout << "Time:   ";
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][1];
             std::cout << std::right
                       << std::setw(2)
-                      << end_data[j][1] << " ";
+                      << end_data[j][1] << "  ";
         }
         media /= static_cast<float>(Nprocess);
         std::cout << "| media = " << media << std::endl;
@@ -154,11 +156,14 @@ public:
                 // seta a CPU
                 MyCPU->set_context(current->get_context());
             }
-            print_state(scheduler->get_time(), output);
             // verifica se ainda há processos não encerrados
             running = (current != nullptr) || (prontos == 0);
             // quando não houver processos para executar,
             // current process será nullptr.
+            if (running)
+            {
+                print_state(scheduler->get_time(), output);
+            }
         }
         std::vector<std::array<int, 2>> end_data(Nprocessos, {0, 0});
         scheduler->get_finished(end_data);

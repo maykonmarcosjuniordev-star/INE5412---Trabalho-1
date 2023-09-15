@@ -13,21 +13,9 @@ int main(int argc, char **argv)
         return 1;
     }
     std::string algoritm = "FCFS";
-    std::string opcoes[5] = {"FCFS", "SJF", "PNP", "PP", "RR"};
-    int cond = 0;
     if (argc == 2)
     {
         algoritm = argv[1];
-        for (int i = 0; i < 5; ++i)
-        {
-            cond |= (algoritm == opcoes[i]);
-        }
-        if (!cond)
-        {
-            printf("ERRO! As opções de algoritmo são:\n"
-                   "FCFS, SJF, PNP, PP, RR\n");
-            return 1;
-        }
     }
     OperatingSystem OS = OperatingSystem(algoritm);
     OS.start();

@@ -183,7 +183,6 @@ public:
     // organiza pela duração
     void ready_process(Process *p) override
     {
-        std::cout << "cheguei" << std::endl;
         int i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
         {

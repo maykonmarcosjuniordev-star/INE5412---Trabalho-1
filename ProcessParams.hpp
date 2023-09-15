@@ -21,8 +21,8 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const ProcessParams &p)
     {
-        os << " id = " << p.id
-           << "Creation time = "
+        os << "\nid = " << p.id
+           << " creation time = "
            << p.creation_time
            << " duration = "
            << p.duration

@@ -33,7 +33,7 @@ protected:
             // houve troca de contexto
             context_switch++;
             // atualiza a fila de contextos
-            context_queue.push_back(current_process->processing());
+            context_queue.push_back(current_process->get_context());
         }
     }
     // retorna se encerrou um processo,
@@ -49,6 +49,10 @@ protected:
             current_process->change_state();
             current_process->set_end_time(get_time());
             context_queue.pop_back();
+            if (ready_queue.size() == 0)
+            {
+                current_process = nullptr;
+            }
         }
         return output;
     }
@@ -78,15 +82,17 @@ public:
     }
     virtual void get_state(std::vector<std::string> &output)
     {
+        std::cout << "\nready_queue.size() == " << ready_queue.size() << std::endl;
         for (int i = 0; i < ready_queue.size(); i++)
         {
             // processos aguardando a execução
+            std::cout << "\nready_queue[0]->get_id() == " << ready_queue[0]->get_id() << std::endl;
             output[ready_queue[i]->get_id() - 1] = "--";
         }
-        if (current_process)
+        if (current_process != nullptr)
         {
             // processo executando
-            output[current_process->get_id()] = "##";
+            output[current_process->get_id() - 1] = "##";
         }
     }
     // retorna as estatísticas finais
@@ -103,6 +109,10 @@ public:
     // escalonador default, sem preempção
     virtual Process *scheduling()
     {
+        if (current_process != nullptr)
+        {
+            current_process->processing();
+        }
         // verifica se precia encerrar um processo e o faz
         if ((current_process == nullptr) || end_process())
         {
@@ -112,7 +122,7 @@ public:
         {
             preempt();
         }
-        // todos na fila de prontos passam tempo sem serem processados
+        //   todos na fila de prontos passam tempo sem serem processados
         for (int i = 0; i < ready_queue.size(); ++i)
         {
             ready_queue[i]->spend_time();
@@ -232,6 +242,10 @@ public:
     }
     Process *scheduling() override
     {
+        if (current_process != nullptr)
+        {
+            current_process->processing();
+        }
         if (remaining == 0)
         {
             // retorna ao valor;

@@ -41,12 +41,11 @@ public:
 			id++;
 			int i = 0;
 			// ordena os processos pelo tempo de criação
-			while (i < not_ready_queue.size() && not_ready_queue[i].get_creation_time() < crea_t)
+			while (i < not_ready_queue.size() && not_ready_queue[i].get_creation_time() <= crea_t)
 			{
 				i++;
 			}
-			ProcessParams p = ProcessParams(crea_t, dura_t, prior, id);
-			not_ready_queue.insert(not_ready_queue.begin() + i, p);
+			not_ready_queue.insert(not_ready_queue.begin() + i, ProcessParams(crea_t, dura_t, prior, id));
 		}
 	}
 };

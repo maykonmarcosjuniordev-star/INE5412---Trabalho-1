@@ -10,7 +10,7 @@
 class OperatingSystem
 {
 private:
-    CPU MyCPU;
+    CPU *MyCPU;
     SchedulerStrategy scheduler;
     std::vector<ProcessParams> not_ready_queue;
     // esconde a seleção do algoritmo de escalonamento
@@ -42,12 +42,6 @@ private:
     // cria processos a partir de seus parâmetros
     void get_readys()
     {
-        while (not_ready_queue.size() && (not_ready_queue[0]).get_creation_time() == scheduler.get_time())
-        {
-            Process p = Process(&(not_ready_queue[0]));
-            scheduler.ready_process(p);
-            not_ready_queue.erase(not_ready_queue.begin());
-        }
     }
     /*
     void print_processes_params(std::vector<ProcessParams *> &processes)
@@ -74,13 +68,13 @@ private:
     void print_state(int *sec, std::vector<std::string> output)
     {
         std::cout << '\n'
-                  << std::left
+                  << std::right
                   << std::setw(2)
-                  << sec++
+                  << (*sec)++
                   << "-"
-                  << std::left
+                  << std::right
                   << std::setw(2)
-                  << sec << " ";
+                  << *sec << " ";
         for (int i = 0; i < output.size(); ++i)
         {
             std::cout << output[i] << ' ';
@@ -119,39 +113,51 @@ private:
 public:
     OperatingSystem(std::string algoritm)
     {
-        scheduler = choose_sched(algoritm);
         File myfile = File();
         myfile.read_file(not_ready_queue);
-        MyCPU = INE5412();
+        scheduler = choose_sched(algoritm);
+        MyCPU = new INE5412();
     }
-    ~OperatingSystem() {}
+    ~OperatingSystem()
+    {
+        delete MyCPU;
+    }
 
     void start()
     {
         print_initial();
         // a saida associada a cada processo no diagrama de tempo
-        std::vector<std::string> output = std::vector<std::string>(not_ready_queue.size(), "  ");
         // contador do diagrama de tempo
         int sec = 0;
-        bool running = 1 && (not_ready_queue.size());
+        int prontos = 0;
+        int Nprocessos = not_ready_queue.size();
+        bool running = Nprocessos;
         while (running)
         {
             // atualiza a fila de prontos
-            get_readys();
+            // get_readys();
+            while ((prontos < not_ready_queue.size()) && (not_ready_queue[prontos]).get_creation_time() == scheduler.get_time())
+            {
+                Process p = Process(&(not_ready_queue[prontos]));
+                std::cout << "\nprontos = " << prontos << std::endl;
+                scheduler.ready_process(p);
+                prontos++;
+            }
             // chama o escalonador
             Process *current = scheduler.scheduling();
+            std::vector<std::string> output = std::vector<std::string>(not_ready_queue.size(), "  ");
             // consegue o status desse segundo
             scheduler.get_state(output);
             if (current != nullptr)
             {
                 // seta a CPU
-                MyCPU.set_context(current->get_context());
+                MyCPU->set_context(current->get_context());
             }
             print_state(&sec, output);
             // verifica se ainda há processos
-            running = (not_ready_queue.size()) || (current != nullptr);
+            running = (current != nullptr) || (prontos == 0) && (sec < 15);
         }
         // printa o resultado;
-        print_statistics(output.size());
+        print_statistics(Nprocessos);
     }
 };

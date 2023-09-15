@@ -9,7 +9,7 @@ public:
     CPU() {}
     virtual ~CPU() {}
 
-    virtual void set_context(Context *new_context);
+    virtual void set_context(Context *new_context) = 0;
 };
 
 class INE5412 : public CPU

@@ -17,28 +17,26 @@ private:
     // esconde a seleção do algoritmo de escalonamento
     SchedulerStrategy choose_sched(std::string algoritm)
     {
-        SchedulerStrategy output;
-        if (algoritm == "FCFS")
+        if (algoritm == "SJF")
         {
-            output = FCFS_Scheduler(not_ready_queue.size());
-        }
-        else if (algoritm == "SJF")
-        {
-            output = SJF_Scheduler(not_ready_queue.size());
+            return SJF_Scheduler(not_ready_queue.size());
         }
         else if (algoritm == "PNP")
         {
-            output = Priority_Scheduler(not_ready_queue.size(), false);
+            return Priority_Scheduler(not_ready_queue.size(), false);
         }
         else if (algoritm == "PP")
         {
-            output = Priority_Scheduler(not_ready_queue.size(), true);
+            return Priority_Scheduler(not_ready_queue.size(), true);
+        }
+        else if (algoritm == "RR")
+        {
+            return RR_Scheduler(not_ready_queue.size());
         }
         else
         {
-            output = RR_Scheduler(not_ready_queue.size());
+            return FCFS_Scheduler(not_ready_queue.size());
         }
-        return output;
     }
     // cria processos a partir de seus parâmetros
     void get_readys()
@@ -66,16 +64,16 @@ private:
         }
     }
     // printa cada segundo do diagrama de tempo
-    void print_state(int *sec, std::vector<std::string> output)
+    void print_state(int sec, std::vector<std::string> output)
     {
         std::cout << '\n'
                   << std::right
                   << std::setw(2)
-                  << (*sec)++
+                  << (sec - 1)
                   << "-"
                   << std::right
                   << std::setw(2)
-                  << *sec << "  ";
+                  << sec << "  ";
         for (int i = 0; i < output.size(); ++i)
         {
             std::cout << output[i] << ' ';
@@ -89,7 +87,7 @@ private:
         scheduler.get_finished(end_data);
         std::cout << "\nTurnaround\n";
         std::cout << "Time: ";
-        int media = 0;
+        float media = 0;
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
@@ -97,7 +95,7 @@ private:
                       << std::setw(2)
                       << end_data[j][0] << " ";
         }
-        media /= Nprocess;
+        media /= static_cast<float>(Nprocess);
         std::cout << "| media = " << media << std::endl;
 
         media = 0;
@@ -110,7 +108,7 @@ private:
                       << std::setw(2)
                       << end_data[j][1] << " ";
         }
-        media /= Nprocess;
+        media /= static_cast<float>(Nprocess);
         std::cout << "| media = " << media << std::endl;
         std::cout << "N de trocas de contexto = " << scheduler.get_context_switch() << std::endl;
     }
@@ -137,7 +135,6 @@ public:
         print_initial();
         // a saida associada a cada processo no diagrama de tempo
         // contador do diagrama de tempo
-        int sec = 0;
         int prontos = 0;
         int Nprocessos = not_ready_queue.size();
         bool running = Nprocessos;
@@ -162,9 +159,11 @@ public:
                 // seta a CPU
                 MyCPU->set_context(current->get_context());
             }
-            print_state(&sec, output);
-            // verifica se ainda há processos
+            print_state(scheduler.get_time(), output);
+            // verifica se ainda há processos não encerrados
             running = (current != nullptr) || (prontos == 0);
+            // quando não houver processos para executar,
+            // current process será nullptr.
         }
         // printa o resultado;
         print_statistics(Nprocessos);

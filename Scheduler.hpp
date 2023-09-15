@@ -195,7 +195,7 @@ public:
     // preempta se houver processos mais curtos
     void preempt() override
     {
-        if (current_process->get_duration() > ready_queue[0]->get_duration())
+        if (ready_queue.size() && (current_process->get_duration() > ready_queue[0]->get_duration()))
         {
             current_process->change_state(-1);
             ready_process(current_process);
@@ -229,7 +229,7 @@ public:
     // preempta se houver processo prioritários
     void preempt() override
     {
-        if (current_process->get_priority() < ready_queue[0]->get_priority())
+        if (ready_queue.size() && (current_process->get_priority() < ready_queue[0]->get_priority()))
         {
             current_process->change_state(-1);
             ready_process(current_process);

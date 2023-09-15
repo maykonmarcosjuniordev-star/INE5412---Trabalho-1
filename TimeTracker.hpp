@@ -19,7 +19,7 @@ public:
     // e atualiza o current_time
     void cicle()
     {
-        sleep(CLOCK);
+        // sleep(CLOCK);
         current_time += CLOCK;
     }
 };

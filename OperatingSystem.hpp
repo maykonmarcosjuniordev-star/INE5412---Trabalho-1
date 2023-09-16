@@ -56,55 +56,64 @@ private:
         std::cout << "tempo ";
         for (std::size_t i = 1; i <= not_ready_queue.size(); ++i)
         {
-            std::cout << "  P" << i;
+            std::cout << "| P"
+                      << std::left
+                      << std::setw(2) << i;
         }
+        std::cout << "|" << std::endl;
     }
     // printa cada segundo do diagrama de tempo
     void print_state(int sec, std::vector<std::string> &output)
     {
-        std::cout << '\n'
-                  << std::right
+        std::cout << std::right
                   << std::setw(2)
                   << (sec - 1)
                   << "-"
                   << std::left
                   << std::setw(2)
-                  << sec << "   ";
+                  << sec << " | ";
         for (std::size_t i = 0; i < output.size(); ++i)
         {
-            std::cout << output[i] << "  ";
+            std::cout << output[i] << " | ";
             output[i] = "  ";
         }
+        std::cout << std::endl;
     }
     // estatísticas finais do escalonamento
     void print_statistics(int Nprocess, int Ncontext_switch, std::vector<std::array<int, 2>> &end_data)
     {
-        std::cout << "\nTurnaround\n";
-        std::cout << "Time:   ";
+        std::cout << "______|";
+        for (int i = 0; i < Nprocess; ++i)
+        {
+            std::cout << "    |";
+        }
+        std::cout << "\nT_Time| ";
         float media = 0;
         for (int j = 0; j < Nprocess; ++j)
         {
             media += end_data[j][0];
             std::cout << std::right
                       << std::setw(2)
-                      << end_data[j][0] << "  ";
+                      << end_data[j][0] << " | ";
         }
-        media /= static_cast<float>(Nprocess);
-        std::cout << "| media = " << media << std::endl;
 
-        media = 0;
-        std::cout << "Wait\n";
-        std::cout << "Time:   ";
+        int media2 = 0;
+        std::cout << "\nW_Time| ";
         for (int j = 0; j < Nprocess; ++j)
         {
-            media += end_data[j][1];
+            media2 += end_data[j][1];
             std::cout << std::right
                       << std::setw(2)
-                      << end_data[j][1] << "  ";
+                      << end_data[j][1] << " | ";
         }
         media /= static_cast<float>(Nprocess);
-        std::cout << "| media = " << media << std::endl;
-        std::cout << "N de trocas de contexto = " << Ncontext_switch << std::endl;
+        media2 /= static_cast<float>(Nprocess);
+        std::cout << "\nmedia T_Time = " << media
+                  << "\nmedia W_Time = " << media2
+                  << "\nNumero de trocas de contexto = "
+                  << Ncontext_switch << "\n[T_time = Turnaround Time]"
+                  << "\n[W_Time = Wait Time]"
+                  << std::endl;
     }
 
 public:
@@ -128,17 +137,17 @@ public:
     void start()
     {
         print_initial();
-        // a saida associada a cada processo no diagrama de tempo
-        std::vector<std::string> output = std::vector<std::string>(not_ready_queue.size(), "  ");
         // contador do diagrama de tempo
-        std::size_t prontos = 0;
+        int prontos = 0;
         int Nprocessos = not_ready_queue.size();
+        // a saida associada a cada processo no diagrama de tempo
+        std::vector<std::string> output = std::vector<std::string>(Nprocessos, "  ");
         bool running = Nprocessos;
         while (running)
         {
             // atualiza a fila de prontos e cria
             // processos a partir de seus parâmetros
-            while ((prontos < not_ready_queue.size()) && (not_ready_queue[prontos]).get_creation_time() == scheduler->get_time())
+            while ((prontos < Nprocessos) && (not_ready_queue[prontos]).get_creation_time() == scheduler->get_time())
             {
                 Process *p = new Process(&(not_ready_queue[prontos]));
                 process_bucket.push_back(p);

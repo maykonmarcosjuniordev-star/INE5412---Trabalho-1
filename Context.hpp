@@ -9,10 +9,10 @@ public:
     virtual void processing() = 0;
     virtual ~Context() {}
 
-    virtual long int *get_registers() = 0;
-    virtual long int get_SP() = 0;
-    virtual long int get_PC() = 0;
-    virtual long int get_ST() = 0;
+    virtual void *get_registers() = 0;
+    virtual void *get_SP() = 0;
+    virtual void *get_PC() = 0;
+    virtual void *get_ST() = 0;
 };
 
 class INEcontext : public Context
@@ -46,24 +46,24 @@ public:
         ST = rand();
     }
 
-    long int *get_registers() override
+    void *get_registers() override
     {
         return registers;
     }
 
-    long int get_SP() override
+    void *get_SP() override
     {
-        return SP;
+        return &SP;
     }
 
-    long int get_PC() override
+    void *get_PC() override
     {
-        return PC;
+        return &PC;
     }
 
-    long int get_ST() override
+    void *get_ST() override
     {
-        return ST;
+        return &ST;
     }
 };
 

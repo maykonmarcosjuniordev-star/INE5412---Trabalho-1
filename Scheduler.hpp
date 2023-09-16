@@ -66,6 +66,11 @@ protected:
     virtual void preempt() {}
 
 public:
+    SchedulerStrategy(int Nprocess = 100, bool is_preemp = false)
+        : finished_queue(Nprocess, nullptr), current_process(nullptr),
+          watch(), preemp(is_preemp), context_switch(0)
+    {
+    }
     virtual ~SchedulerStrategy() {}
     // retorna current_time do relógio
     virtual int get_time() const
@@ -76,17 +81,6 @@ public:
     virtual int get_context_switch() const
     {
         return context_switch;
-    }
-    // traduz o estado da fila de prontos para a saída
-    // checa o processo, o insere na
-    // fila de prontos e atualiza o estado
-    virtual void ready_process(Process *p)
-    {
-        if (p != nullptr)
-        {
-            ready_queue.push_back(p);
-            p->change_state();
-        }
     }
     virtual void get_state(std::vector<std::string> &output)
     {
@@ -125,6 +119,17 @@ public:
         }
     }
     // escalonador default, sem preempção
+    // traduz o estado da fila de prontos para a saída
+    // checa o processo, o insere na
+    // fila de prontos e atualiza o estado
+    virtual void ready_process(Process *p)
+    {
+        if (p != nullptr)
+        {
+            ready_queue.push_back(p);
+            p->change_state();
+        }
+    }
     virtual Process *scheduling()
     {
         if (current_process != nullptr)
@@ -154,34 +159,18 @@ public:
 class FCFS_Scheduler : public SchedulerStrategy
 {
 public:
-    FCFS_Scheduler(int queue_size)
+    FCFS_Scheduler(int Nprocess = 100)
+        : SchedulerStrategy(Nprocess, false)
     {
-        finished_queue = std::vector<Process *>(queue_size, nullptr);
-        current_process = nullptr;
-        watch = TimeTracker();
-        preemp = false;
-        context_switch = 0;
     }
 };
 
 class SJF_Scheduler : public SchedulerStrategy
 {
 public:
-    SJF_Scheduler(int queue_size)
+    SJF_Scheduler(int Nprocess = 100, bool is_preemp = false)
+        : SchedulerStrategy(Nprocess, is_preemp)
     {
-        finished_queue = std::vector<Process *>(queue_size, nullptr);
-        current_process = nullptr;
-        watch = TimeTracker();
-        preemp = false;
-        context_switch = 0;
-    }
-    SJF_Scheduler(int queue_size, bool is_preemp)
-    {
-        finished_queue = std::vector<Process *>(queue_size, nullptr);
-        current_process = nullptr;
-        watch = TimeTracker();
-        preemp = is_preemp;
-        context_switch = 0;
     }
     // organiza pela duração
     void ready_process(Process *p) override
@@ -213,13 +202,9 @@ public:
 class Priority_Scheduler : public SchedulerStrategy
 {
 public:
-    Priority_Scheduler(int queue_size, bool is_preemp)
+    Priority_Scheduler(int Nprocess = 100, bool is_preemp = false)
+        : SchedulerStrategy(Nprocess, is_preemp)
     {
-        finished_queue = std::vector<Process *>(queue_size, nullptr);
-        current_process = nullptr;
-        preemp = is_preemp;
-        watch = TimeTracker();
-        context_switch = 0;
     }
     // organiza pela prioridade
     void ready_process(Process *p) override
@@ -251,20 +236,13 @@ public:
 class RR_Scheduler : public SchedulerStrategy
 {
 private:
-    int quantum;
-    int remaining;
+    unsigned int quantum;
+    unsigned int remaining;
 
 public:
-    RR_Scheduler(int queue_size)
+    RR_Scheduler(int Nprocess = 100, int Nquantum = QUANTUM)
+        : SchedulerStrategy(Nprocess, true), quantum(Nquantum), remaining(Nquantum)
     {
-        finished_queue = std::vector<Process *>(queue_size, nullptr);
-        current_process = nullptr;
-        watch = TimeTracker();
-        context_switch = 0;
-        // nesse caso, preempta processos encerrados
-        preemp = true;
-        quantum = QUANTUM;
-        remaining = quantum;
     }
     Process *scheduling() override
     {

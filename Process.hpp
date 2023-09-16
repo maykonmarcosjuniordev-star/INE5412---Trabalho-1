@@ -6,6 +6,34 @@
 
 class Process
 {
+private:
+    struct State
+    {
+        std::string states[N_STATES];
+        // para coordenar com strings
+        unsigned int current_state;
+        State()
+        {
+            states[0] = "novo";
+            states[1] = "pronto";
+            states[2] = "executando";
+            states[3] = "terminado";
+            current_state = 0;
+        }
+    };
+    // parâmetros lidos na entrada
+    ProcessParams *params;
+    // tempo na fila de prontos
+    unsigned int wait_time;
+    // tempo encerrado
+    int end_time;
+    // quanto falta para terminar
+    unsigned int remaining_time;
+    // estado de execução
+    State state;
+    // contexto
+    Context *myContext;
+
 public:
     Process(ProcessParams *P_param)
     {
@@ -32,13 +60,13 @@ public:
     {
         return params->get_duration();
     }
-    void set_priority(int newP)
-    {
-        params->set_priority(newP);
-    }
     int get_priority() const
     {
         return params->get_priority();
+    }
+    void set_priority(int newP)
+    {
+        params->set_priority(newP);
     }
     int get_remaining_time() const
     {
@@ -95,32 +123,4 @@ public:
         remaining_time -= 1 * (1 && remaining_time);
         return myContext;
     }
-
-private:
-    struct State
-    {
-        std::string states[N_STATES];
-        // para coordenar com strings
-        int current_state;
-        State()
-        {
-            states[0] = "novo";
-            states[1] = "pronto";
-            states[2] = "executando";
-            states[3] = "terminado";
-            current_state = 0;
-        }
-    };
-    // parâmetros lidos na entrada
-    ProcessParams *params;
-    // tempo na fila de prontos
-    unsigned int wait_time;
-    // tempo encerrado
-    int end_time;
-    // quanto falta para terminar
-    unsigned int remaining_time;
-    // estado de execução
-    State state;
-    // contexto
-    Context *myContext;
 };

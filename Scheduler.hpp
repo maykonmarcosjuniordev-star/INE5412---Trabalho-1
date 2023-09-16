@@ -7,16 +7,16 @@
 class SchedulerStrategy
 {
 protected:
-    std::vector<Process *> ready_queue;
     std::vector<Process *> finished_queue;
-    std::vector<Context *> context_queue;
+    Process *current_process;
     // gerenciador de tempo
     TimeTracker watch;
     // se é ou não preemptivo
     bool preemp;
-    Process *current_process;
     // conta quantas trocas de contexto
     int context_switch;
+    std::vector<Process *> ready_queue;
+    std::vector<Context *> context_queue;
     // checa se há processos para substituir e
     // substitui o processo atual, atualizando
     // também a fila de prontos e de contextos
@@ -45,7 +45,7 @@ protected:
         if (output)
         {
             int idx = current_process->get_id() - 1;
-            if (idx < 0 || idx >= finished_queue.size())
+            if (idx < 0 || idx >= static_cast<int>(finished_queue.size()))
             {
                 return false;
             }
@@ -84,11 +84,11 @@ public:
     }
     virtual void get_state(std::vector<std::string> &output)
     {
-        for (int i = 0; i < ready_queue.size(); i++)
+        for (std::size_t i = 0; i < ready_queue.size(); i++)
         {
             // processos aguardando a execução
             int idx = ready_queue[i]->get_id() - 1;
-            if (idx >= 0 && idx < output.size())
+            if (idx >= 0 && idx < static_cast<int>(output.size()))
             {
                 output[idx] = "--";
             }
@@ -97,7 +97,7 @@ public:
         {
             // processo executando
             int idx = current_process->get_id() - 1;
-            if (idx >= 0 && idx < output.size())
+            if (idx >= 0 && idx < static_cast<int>(output.size()))
             {
                 output[idx] = "##";
             }
@@ -107,11 +107,11 @@ public:
     virtual void get_finished(std::vector<std::array<int, 2>> &output)
     {
         Process *temp = nullptr;
-        for (int i = 0; i < output.size(); ++i)
+        for (std::size_t i = 0; i < output.size(); ++i)
         {
             temp = finished_queue[i];
             int idx = temp->get_id() - 1;
-            if (idx >= 0 && idx < output.size())
+            if (idx >= 0 && idx < static_cast<int>(output.size()))
             {
                 output[idx][0] = temp->get_turnaround();
                 output[idx][1] = temp->get_wait_time();
@@ -146,7 +146,7 @@ public:
             preempt();
         }
         // todos na fila de prontos passam tempo sem serem processados
-        for (int i = 0; i < ready_queue.size(); ++i)
+        for (std::size_t i = 0; i < ready_queue.size(); ++i)
         {
             ready_queue[i]->spend_time();
         }
@@ -179,7 +179,7 @@ public:
         {
             return;
         }
-        int i = 0;
+        std::size_t i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_duration() < p->get_duration())
         {
             ++i;
@@ -213,7 +213,7 @@ public:
         {
             return;
         }
-        int i = 0;
+        std::size_t i = 0;
         while (i < ready_queue.size() && ready_queue[i]->get_priority() > p->get_priority())
         {
             ++i;
@@ -272,7 +272,7 @@ public:
             }
         }
         // todos na fila de prontos passam tempo sem serem processados
-        for (int i = 0; i < ready_queue.size(); ++i)
+        for (std::size_t i = 0; i < ready_queue.size(); ++i)
         {
             ready_queue[i]->spend_time();
         }

@@ -54,7 +54,7 @@ private:
     void print_initial()
     {
         std::cout << "tempo ";
-        for (int i = 1; i <= not_ready_queue.size(); ++i)
+        for (std::size_t i = 1; i <= not_ready_queue.size(); ++i)
         {
             std::cout << "  P" << i;
         }
@@ -70,13 +70,11 @@ private:
                   << std::left
                   << std::setw(2)
                   << sec << "   ";
-        for (int i = 0; i < output.size(); ++i)
+        for (std::size_t i = 0; i < output.size(); ++i)
         {
             std::cout << output[i] << "  ";
             output[i] = "  ";
         }
-        static int debug = 0;
-        // std::cout << "\ndebug = " << debug++ << std::endl;
     }
     // estatísticas finais do escalonamento
     void print_statistics(int Nprocess, int Ncontext_switch, std::vector<std::array<int, 2>> &end_data)
@@ -112,7 +110,7 @@ private:
 public:
     OperatingSystem(std::string algoritm)
     {
-        File myfile = File();
+        File myfile;
         myfile.read_file(not_ready_queue);
         scheduler = choose_sched(algoritm);
         MyCPU = new INE5412();
@@ -121,7 +119,7 @@ public:
     {
         delete MyCPU;
         delete scheduler;
-        for (int i = 0; i < process_bucket.size(); ++i)
+        for (std::size_t i = 0; i < process_bucket.size(); ++i)
         {
             delete process_bucket[i];
         }
@@ -133,7 +131,7 @@ public:
         // a saida associada a cada processo no diagrama de tempo
         std::vector<std::string> output = std::vector<std::string>(not_ready_queue.size(), "  ");
         // contador do diagrama de tempo
-        int prontos = 0;
+        std::size_t prontos = 0;
         int Nprocessos = not_ready_queue.size();
         bool running = Nprocessos;
         while (running)

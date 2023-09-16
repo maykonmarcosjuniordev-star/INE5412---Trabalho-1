@@ -10,9 +10,9 @@ private:
 	std::ifstream myfile;
 
 public:
-	File()
+	File(std::string entry_name = "entrada.txt")
 	{
-		myfile.open("entrada.txt");
+		myfile.open(entry_name);
 		if (!myfile.is_open())
 		{
 			std::cout << "Erro ao abrir o arquivo!\n";
@@ -39,7 +39,7 @@ public:
 		while (myfile >> crea_t >> dura_t >> prior)
 		{
 			id++;
-			int i = 0;
+			std::size_t i = 0;
 			// ordena os processos pelo tempo de criação
 			while (i < not_ready_queue.size() && not_ready_queue[i].get_creation_time() <= crea_t)
 			{

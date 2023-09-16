@@ -1,7 +1,7 @@
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
-#include <cstdlib> // For the rand function
+#include <cstdlib>
 
 class Context
 {

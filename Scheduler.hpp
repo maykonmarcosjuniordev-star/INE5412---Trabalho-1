@@ -7,7 +7,9 @@
 class SchedulerStrategy
 {
 protected:
+    // processos que já terminaram sua execução
     std::vector<Process *> finished_queue;
+    // processo executando
     Process *current_process;
     // gerenciador de tempo
     TimeTracker watch;
@@ -15,7 +17,9 @@ protected:
     bool preemp;
     // conta quantas trocas de contexto
     int context_switch;
+    // processos prontos para executar
     std::vector<Process *> ready_queue;
+    // salvando contextos
     std::vector<Context *> context_queue;
     // checa se há processos para substituir e
     // substitui o processo atual, atualizando
@@ -61,7 +65,6 @@ protected:
         }
         return output;
     }
-    // roca se processo e contexto
     // checa se é necessário e preempta um processo
     virtual void preempt() {}
 
@@ -82,6 +85,7 @@ public:
     {
         return context_switch;
     }
+    // mapeia o estado do processador para um vetor de strings
     virtual void get_state(std::vector<std::string> &output)
     {
         for (std::size_t i = 0; i < ready_queue.size(); i++)
@@ -119,8 +123,7 @@ public:
         }
     }
     // escalonador default, sem preempção
-    // traduz o estado da fila de prontos para a saída
-    // checa o processo, o insere na
+    // tcheca o processo, o insere na
     // fila de prontos e atualiza o estado
     virtual void ready_process(Process *p)
     {
@@ -130,10 +133,12 @@ public:
             p->change_state();
         }
     }
+    // escalonamento padrão
+    // retornando o processo executando
     virtual Process *scheduling()
     {
         if (current_process != nullptr)
-        {
+        { // processo executando
             current_process->processing();
         }
         // verifica se precia encerrar um processo e o faz
@@ -142,7 +147,7 @@ public:
             alternate_process();
         }
         else if (preemp)
-        {
+        { // a preempção default é vazia
             preempt();
         }
         // todos na fila de prontos passam tempo sem serem processados

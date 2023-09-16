@@ -81,8 +81,8 @@ public:
     {
         return wait_time;
     }
-    // se o processamento acabou
-    // seta end_time para o valor forncecido
+    // se o processamento acabou, seta
+    // end_time para o valor forncecido
     void set_end_time(int finish)
     {
         if (remaining_time == 0)
